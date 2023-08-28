@@ -45,12 +45,12 @@ const CloudData = ({route, navigation}) => {
             // For every md (match data), add to the average for each stat
             for (const md of teamData[teamNumber]) {
                 // This is horrible
-                averages.auto += 6*(Number(md[7])+Number(md[10])) + 4*(Number(md[8])+Number(md[11]))+ 3*(Number(md[9])+Number(md[12]));
-                averages.teleop += 5*(Number(md[14])+Number(md[17])) + 3*(Number(md[15])+Number(md[18]))+ 2*(Number(md[16])+Number(md[19]));
-                averages.misses += Number(md[13]) + Number(md[20]);
-                averages.cubes += Number(md[7])+Number(md[8])+Number(md[9]) + Number(md[14])+Number(md[15])+Number(md[16]);
-                averages.cones += Number(md[10])+Number(md[11])+Number(md[12]) + Number(md[17])+Number(md[18])+Number(md[19]);
-                averages.docking += 8*Number(md[5]) + 4*Number(md[6]) + 6*Number(md[21]) + 4*Number(md[22]);
+                averages.auto += 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]));
+                averages.teleop += 5*(Number(md[16])+Number(md[19])) + 3*(Number(md[17])+Number(md[20]))+ 2*(Number(md[18])+Number(md[21]));
+                averages.misses += Number(md[15]) + Number(md[22]);
+                averages.cubes += Number(md[9])+Number(md[10])+Number(md[11]) + Number(md[16])+Number(md[17])+Number(md[18]);
+                averages.cones += Number(md[12])+Number(md[13])+Number(md[14]) + Number(md[19])+Number(md[20])+Number(md[21]);
+                averages.docking += 8*Number(md[7]) + 4*Number(md[8]) + 6*Number(md[24]) + 4*Number(md[25]) + 2*Number(md[23]);
             }
             // Average out and round
             averages.auto = Math.round(10*averages.auto / count) / 10;

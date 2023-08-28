@@ -20,8 +20,10 @@ import { concurrency } from './Constants';
 
 // Constants
 const settingsKey = "@settingsKey";
+const otherSettingsKey = "@OtherSettingsKey";
 const cloudCacheKey = "@cloudCacheKey";
-const delimiter = String.fromCharCode(29);
+const tbaEventCacheKey = "@tbaEventCacheKey";
+const delimiter = String.fromCharCode(124);
 
 // Take a list of data and packs it into a string. Only works with lists numbers and strings
 // Example: [90, 4829] -> "90 4829"
@@ -48,6 +50,7 @@ const decompressData = (compressedData) => {
 // Stores data at a key. Returns false if there there was an error, returns true otherwise.
 const writeData = async (data, key) => {
     try {
+        console.log(data)
         await AsyncStorage.setItem(key, data);
         return true;
     } catch (e) {
@@ -61,6 +64,7 @@ const readData = async (key) => {
     try {
         const data = await AsyncStorage.getItem(key);
         if (data !== null) {
+            console.log(data)
             return data;
         }
     } catch (e) {
@@ -69,7 +73,7 @@ const readData = async (key) => {
     }
 }
 
-// Reads multipe match keys
+// Reads multiple match keys
 const readMultipleDataKeys = async (keys) => {
     try {
         const outputData = Promise.map(keys,
@@ -84,6 +88,7 @@ const readMultipleDataKeys = async (keys) => {
         return null;
     }
 }
+
 
 // Deletes a key. Returns false if there was an error, returns true otherwise
 const deleteData = async (key) => {
@@ -117,7 +122,7 @@ const deleteMultipleDataKeys = async (keys) => {
 const saveMatchData = async (data) => {
     const matchTypeValues = ["Practice", "Qualifiers", "Finals"]; // Probably should be stored elsewhere
 
-    const key = `@MD${data[0]}-${matchTypeValues[data[2]]}-${data[1]}`;
+    const key = `@MD${data[2]}-${matchTypeValues[data[4]]}-${data[3]}`;
     const serializedData = serializeData(data);
     return await writeData(serializedData, key);
 };
@@ -153,6 +158,20 @@ const loadSettings = async () => {
     }
 }
 
+// Helper function to load other settings
+const loadOtherSettings = async () => {
+    const loadedOtherSettings = await readData(otherSettingsKey);
+    if (!loadedOtherSettings) return null;
+
+    // This probably shouldn't even include a try function because it shouldn't accept settings that don't parse correctly
+    try {
+        const parsedSettings = JSON.parse(loadedOtherSettings);
+        return parsedSettings;
+    } catch (e) {
+        return null;
+    }
+}
+
 // Helper function to save cloud cache
 const saveCloudCache = async (cloudData) => {
     const stringData = JSON.stringify(cloudData);
@@ -170,9 +189,28 @@ const loadCloudCache = async () => {
     }
 }
 
+
+// Helper function to save cloud cache
+const savetbaEventCache = async (tbaData) => {
+    const stringData = JSON.stringify(tbaData);
+    return await writeData(stringData, tbaEventCacheKey);
+}
+
+// Helper function to load cloud cache
+const loadtbaEventCache = async () => {
+    const loadedCache = await readData(tbaEventCacheKey);
+    try {
+        const parsedData = JSON.parse(loadedCache);
+        return parsedData;
+    } catch (e) {
+        return null;
+    }
+}
+
 // Exports
 export { 
     settingsKey,
+    otherSettingsKey,
     cloudCacheKey,
     delimiter,
     readData,
@@ -188,6 +226,7 @@ export {
     deleteMultipleDataKeys,
     removeNonMatchKeys,
     loadSettings,
+    loadOtherSettings,
     saveCloudCache,
     loadCloudCache,
 }

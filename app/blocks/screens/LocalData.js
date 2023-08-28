@@ -5,28 +5,32 @@ import { getStorage } from 'firebase/storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library'
+import * as Sharing from 'expo-sharing';
+
 
 // Component Imports
 import { fU, vh, vw } from '../../common/Constants';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTGradient, TTConfirmation, TTLoading, TTWarning, TTAlert } from '../components/ExtraComponents';
 import { initializeFirebaseFromSettings, uploadStringToCloud, getAllFilesFromRef, uploadMultipleStringsToCloud } from '../../common/CloudStorage';
-import { deleteMultipleDataKeys, loadMatchData, removeNonMatchKeys, readData, saveMatchData, readMultipleDataKeys, loadSettings, deleteData } from '../../common/LocalStorage';
+import { deleteMultipleDataKeys, loadMatchData, removeNonMatchKeys, readData, saveMatchData, readMultipleDataKeys, readMultipleDataKeysString, loadSettings, deleteData } from '../../common/LocalStorage';
 import { TTButton, TTCheckbox, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 
+const fileDir = FileSystem.documentDirectory;
 
 // Serializes the data to a string and saves it
-const saveRandomData = async () => {
+async function saveRandomData() {
 	const matchData = [
 		// Pre Round
-		Math.round(Math.random() * 30), 
+		Math.round(Math.random() * 30),
 		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 2), 
-		Math.round(Math.random()), 
+		Math.round(Math.random() * 2),
+		Math.round(Math.random()),
 
 		// Auto
-		Math.round(Math.random()),
 		Math.round(Math.random()),
 		Math.round(Math.random()),
 		Math.round(Math.random() * 3),
@@ -47,8 +51,8 @@ const saveRandomData = async () => {
 	];
 
 	// Save data using hash
-	await saveMatchData(matchData)
-};
+	await saveMatchData(matchData);
+}
 
 // Main function
 const LocalData = ({route, navigation}) => {
@@ -118,6 +122,7 @@ const LocalData = ({route, navigation}) => {
 				return filename;
 			}
 		);
+		
 		await uploadMultipleStringsToCloud(storage, multiStringData, filenames);
 
 		setLoadingVisible(false);
@@ -127,6 +132,56 @@ const LocalData = ({route, navigation}) => {
 		return;
 	}
 
+	// Upload all the data to fileSystem
+    const uploadDataToFileSystem = async () => {
+		setLoadingContent([null, `Uploading ScoutingData to Filesystem...`]);
+		setLoadingVisible(true);
+
+		let multiStringData = [];
+		try {
+			multiStringData = await readMultipleDataKeys(matchKeys);
+		} catch (e) {
+			setLoadingVisible(false);
+			setWarningContent([null, `Couldn't get a connection to file system!\n${e}`, null]);
+			setWarningVisible(true);
+			return;
+		}
+
+		const status  = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+		const localFileUri = fileDir + "ScoutingFile.txt";
+
+		var dataString ='ScouterName|Device|TeamNumber|MatchNumber|MatchType|AllianceColor|';
+		dataString =dataString + 'Mobility|AutoDocked|AutoEngaged|'
+		dataString =dataString + 'AutoCubeHigh|AutoCubeMid|AutoCubeLow|';
+		dataString =dataString + 'AutoConeHigh|AutoConeMid|AutoConeLow|AutoMisses|';
+		dataString =dataString + 'TeleCubeHigh|TeleCubeMid|TeleCubeLow|';		
+		dataString =dataString + 'TeleConeHigh|TeleConeMid|TeleConeLow|TeleMisses|';
+		dataString =dataString + 'EndgameParked|EndgameDocked|EndgameEngaged|Comments\n';
+		var i ;
+		for(i=0; i < multiStringData.length; i++){
+			dataString += `${multiStringData[i]}\n`;
+		}
+			
+		await FileSystem.writeAsStringAsync(localFileUri, dataString, { encoding: FileSystem.EncodingType.UTF8 });
+
+		
+		if (status.granted) {
+			await FileSystem.StorageAccessFramework.createFileAsync(status.directoryUri,"ScoutingFile.txt", "text/plain")
+			.then ( async (localFileUri) => {
+				await FileSystem.writeAsStringAsync(localFileUri, dataString, { encoding: FileSystem.EncodingType.UTF8 });
+			})
+			.catch (e => console.log(e));
+
+		} else {
+			Sharing.shareAsync(localFileUri)
+		}
+
+		setLoadingVisible(false);
+		setAlertContent(["Success!", `Successfully uploaded file to the filesystem!`, null]);
+		setTimeout(() => setAlertVisible(true), 500);
+
+		return;
+	}
 
 	// Loads all keys and removes any that don't contain matchdata
 	React.useEffect(() => {
@@ -232,7 +287,21 @@ const LocalData = ({route, navigation}) => {
 					}}
 				/>}
 				<View style={{marginBottom: 4*vh}}></View>
+				
 			</ScrollView>
+
+			{/* Second to bottom button */}
+			<View style={{backgroundColor: CS.transparent}}>
+				<TTGradient/>
+
+					<TTButton
+						text="Download Data to File"
+						buttonStyle={{...globalButtonStyles.primaryButton, width: "90%", margin: 2 * vh}}
+						textStyle={{...globalTextStyles.primaryText, fontSize: 24 * fU}}
+						onPress={() => {uploadDataToFileSystem()}}
+					/>
+		
+			</View>
 
 			{/* Bottom button */}
 			<View style={{backgroundColor: CS.transparent}}>

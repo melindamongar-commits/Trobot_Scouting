@@ -36,7 +36,7 @@ const Homescreen = ({route, navigation}) => {
                 fontFamily: "LGC Light",
                 letterSpacing: 0.5*vw
             }}>
-                <Text style={{fontFamily: "LGC Bold"}}>TigerScout</Text> powered by <Text style={{fontFamily: "LGC Bold"}}>4829</Text>
+                <Text style={{fontFamily: "LGC Bold"}}>5013 Scouting App</Text>
             </Text>
             
             {/* Scout */}
@@ -81,7 +81,7 @@ const Homescreen = ({route, navigation}) => {
 
             {/* Cloud Data */}
             <TTButton 
-                text="Cloud Data"
+                text="Cloud Metrics"
                 buttonStyle={[
                     globalButtonStyles.secondaryButton,
                     {   
