@@ -9,11 +9,14 @@ import CryptoJS from 'crypto-js';
 // Component imports
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTAlert, TTConfirmation, TTGradient, TTWarning, TTPoll } from '../components/ExtraComponents';
-import { TTButton, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
+import { TTButton, TTPushButton,  TTSimpleCheckbox } from '../components/ButtonComponents';
 import { readStringFromCloud, initializeFirebaseFromSettings } from '../../common/CloudStorage';
-import { readData, writeData, loadSettings, deleteData, settingsKey, saveCloudCache } from '../../common/LocalStorage';
+import { readData, writeData, loadSettings, loadOtherSettings, deleteData, settingsKey, otherSettingsKey, saveCloudCache } from '../../common/LocalStorage';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
-import { vh } from '../../common/Constants';
+import { vh,vw } from '../../common/Constants';
+import { TTTextInput, TTDropdown } from '../components/InputComponents';
+import { styles, deviceValues } from '../screens/ScoutTeam';
+
 
 // Main function
 const Settings = ({route, navigation}) => {
@@ -39,6 +42,11 @@ const Settings = ({route, navigation}) => {
     const [enteredPassword, setEnteredPassword] = React.useState("");
     
     const [connectionData, setConnectionData] = React.useState("");
+    const [device, setDevice]= React.useState("Device"); 
+    const [eventKey, setEventKey]= React.useState("");
+    const [tbaKey, setTBAKey]= React.useState("");
+
+    const [otherSettings, setOtherSettings] = React.useState({});
 
     // Settings
     const [settings, setSettings] = React.useState({});
@@ -58,6 +66,15 @@ const Settings = ({route, navigation}) => {
             setSettings(loadedSettings);
         };
         loadSettingsToState();
+
+        const loadOtherSettingsToState = async () => {
+            const loadedOtherSettings = await loadOtherSettings();
+            setOtherSettings(loadedOtherSettings);
+            setTBAKey(loadedOtherSettings.tbaKey);
+            setEventKey(loadedOtherSettings.eventKey);
+            setDevice(loadedOtherSettings.device);
+        };
+        loadOtherSettingsToState();
 
         // Loading firebase from settings
         initializeFirebaseFromSettings();
@@ -85,6 +102,18 @@ const Settings = ({route, navigation}) => {
             </View>
         );
     }
+    const saveOtherSettings = async () => {
+        const otherSettings = {
+            device: device,
+            tbaKey: tbaKey,
+            eventKey: eventKey
+        };
+        
+        setOtherSettings(otherSettings);
+        writeData(JSON.stringify(otherSettings), otherSettingsKey);
+
+        
+    }
 
     const connectFromData = async () => {
         const contentEquivalency = (a, b) => {
@@ -99,18 +128,22 @@ const Settings = ({route, navigation}) => {
 
             // Make sure barcode has required keys
             const requiredKeys = ["bucketName", "cloudConfig", "subpath", "permissions"];
-            if (!contentEquivalency(requiredKeys, Object.keys(parsedData))) {
-                setWarningContent([null, "QR code doesn't have the right keys to connect to a bucket!", null]);
-                setTimeout(() => setWarningVisible(true), 500);
-                return;
+            if (parsedData != null) {
+                if (!contentEquivalency(requiredKeys, Object.keys(parsedData))) {
+                    setWarningContent([null, "QR code doesn't have the right keys to connect to a bucket!", null]);
+                    setTimeout(() => setWarningVisible(true), 500);
+                    return;
+                }
             }
 
+            
             const settings = {
                 bucketName: parsedData.bucketName,
                 cloudConfig: parsedData.cloudConfig,
                 subpath: parsedData.subpath,
                 permissions: parsedData.permissions
             };
+
             setSettings(settings);
             writeData(JSON.stringify(settings), settingsKey);
 
@@ -135,7 +168,6 @@ const Settings = ({route, navigation}) => {
         setSettings(null);
         saveCloudCache(null);
     }
-
     //
     //  QR Code Scanner
     //
@@ -168,6 +200,7 @@ const Settings = ({route, navigation}) => {
     //
     const SettingsLayout = () => {
         return (
+            
             <View style={globalContainerStyles.centerContainer}>
                 <TTGradient/>
                 
@@ -175,6 +208,8 @@ const Settings = ({route, navigation}) => {
                 {
                     settings !== null && 
                     (<View>
+
+                        <View style={{margin: 1 * vh}}/>
                         <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
                             Connected to bucket:
                         </Text>
@@ -196,15 +231,85 @@ const Settings = ({route, navigation}) => {
                             buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}} 
                             textStyle={{...globalTextStyles.secondaryText, fontSize: 24}}
                         />
+
+                        <View style={{margin: 1 * vh}}/>
+                        <Text style={styles.sectionHeader}>Other Settings</Text>
+                        <View style={{height: 25*vh, zIndex: 1}}>
+                            {/*TBA KEY*/}
+                            <View style={styles.rowAlignContainer}>
+                            <TTTextInput
+                                state={tbaKey}
+                                setState={setTBAKey}
+                                placeholder="Enter TBA Key"
+                                placeholderTextColor={`${CS.light1}50`}
+                                multiline={true}
+                                maxLength={50}
+                                numberOfLines={4}
+                                
+                                style={[
+                                    {...globalInputStyles.numberInput, width: "90%", height: 7*vh},
+                                    globalTextStyles.labelText
+                                ]}
+                            />
+                            </View>
+                            
+                            <View style={{margin: 1 * vh}}/>
+                            {/*Event KEY*/}
+                            <View style={styles.rowAlignContainer}>
+                            <TTTextInput
+                                state={eventKey}
+                                setState={setEventKey}
+                                placeholder="Enter Event Key"
+                                placeholderTextColor={`${CS.light1}50`}
+                                multiline={false}
+                                maxLength={50}
+                                numberOfLines={1}                          
+                                style={[
+                                    {...globalInputStyles.numberInput, width: "90%", height: 5*vh},
+                                    globalTextStyles.labelText
+                                ]}
+                            />
+                            </View>
+                            
+                            {/* Device */}
+                            <View style={{...styles.rowAlignContainer, zIndex: 6}}>
+                            <TTDropdown 
+                                state={device} 
+                                setState={setDevice} 
+                                items={deviceValues}
+                                boxWidth={40*vw}
+                                boxHeight={5*vh}
+                                boxStyle={globalInputStyles.dropdownInput}
+                                textStyle={globalTextStyles.labelText}
+                            />
+                            </View>
+                            
+                            <TTButton
+                                text="Save Settings"
+                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
+                                textStyle={{...globalTextStyles.secondaryText, fontSize: 24}}
+                                onPress={() => {
+                                    saveOtherSettings("")
+                                    }
+                                }
+                            />
+
+                        </View>
+
                     </View>)
                 }
 
                 {
                     settings === null &&
-                    (<View style={globalContainerStyles.columnContainer}>
+                    (   
+
+                        <View style={globalContainerStyles.columnContainer}>
+
+
+                        <View style={{margin: 1 * vh}}/>
                         <Text style={{...globalTextStyles.labelText, fontSize: 18, color: CS.light1, margin: 3*vh}}>
                             To get connected, scan a team's QR code.
-                        </Text>
+                        </Text>                       
                         <TTButton 
                             text="Scan QR Code" 
                             onPress={() => {
@@ -226,7 +331,72 @@ const Settings = ({route, navigation}) => {
                             buttonStyle={{...globalButtonStyles.primaryButton, width: "80%"}} 
                             textStyle={globalTextStyles.secondaryText}
                         />
-                    </View>)
+                        
+                        <View style={{margin: 1 * vh}}/>
+                        <Text style={styles.sectionHeader}>Other Settings</Text>
+                        <View style={{height: 25*vh, zIndex: 1}}>
+                            {/*TBA KEY*/}
+                            <View style={styles.rowAlignContainer}>
+                            <TTTextInput
+                                state={tbaKey}
+                                setState={setTBAKey}
+                                placeholder="Enter TBA Key"
+                                placeholderTextColor={`${CS.light1}50`}
+                                multiline={true}
+                                maxLength={50}
+                                numberOfLines={4}
+                                
+                                style={[
+                                    {...globalInputStyles.numberInput, width: "90%", height: 5*vh},
+                                    globalTextStyles.labelText
+                                ]}
+                            />
+                            </View>
+                            
+                            <View style={{margin: 1 * vh}}/>
+                            {/*Event KEY*/}
+                            <View style={styles.rowAlignContainer}>
+                            <TTTextInput
+                                state={eventKey}
+                                setState={setEventKey}
+                                placeholder="Enter Event Key"
+                                placeholderTextColor={`${CS.light1}50`}
+                                multiline={false}
+                                maxLength={50}
+                                numberOfLines={1}                          
+                                style={[
+                                    {...globalInputStyles.numberInput, width: "90%", height: 5*vh},
+                                    globalTextStyles.labelText
+                                ]}
+                            />
+                            </View>
+                            
+                            {/* Device */}
+                            <View style={{...styles.rowAlignContainer, zIndex: 6}}>
+                            <TTDropdown 
+                                state={device} 
+                                setState={setDevice} 
+                                items={deviceValues}
+                                boxWidth={40*vw}
+                                boxHeight={5*vh}
+                                boxStyle={globalInputStyles.dropdownInput}
+                                textStyle={globalTextStyles.labelText}
+                            />
+                            </View>
+                            
+                            <TTButton
+                                text="Save Settings"
+                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
+                                textStyle={{...globalTextStyles.secondaryText, fontSize:24}}
+                                onPress={() => {
+                                    saveOtherSettings("")
+                                    }
+                                }
+                            />
+
+                        </View>
+                    </View>
+                    )
                 }
             </View>
         );
@@ -276,6 +446,7 @@ const Settings = ({route, navigation}) => {
                     connectFromData();
                 }}
             />
+
             <TTPoll
                 state={enterTextVisible}
                 setState={setEnterTextVisible}

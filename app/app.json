@@ -40,7 +40,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "156bb3a7-5cf2-4e1d-b89f-e1e5a1f45f12"
+        "projectId": "497c6dc6-9bab-4f75-a754-ee8bf537238c"
       }
     },
     "runtimeVersion": {
@@ -53,6 +53,8 @@
           "cameraPermission": "Allow TigerScout to access your camera. TigerScout uses the camera exclusively to scan QR codes and allows you to connect to cloud storage buckets."
         }
       ]
-    ]
-  }
+    ],
+    "sdkVersion": "49.0.0"
+  },
+  "name": "tigerscout2.0"
 }

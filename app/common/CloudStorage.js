@@ -110,7 +110,7 @@ const downloadAllFilesFromCloud = async (storage, subpath) => {
 		// Need some way of sorting each match array based on match number so that graphs are easier
         for (const stringData of promiseData) {
             const data = deserializeData(stringData);
-            const teamNumber = data[0];
+            const teamNumber = data[2];
             // If there's already something there, push the new data, otherwise create an array
             if (fileContents[teamNumber] == null) fileContents[teamNumber] = [data];
             else fileContents[teamNumber].push(data);

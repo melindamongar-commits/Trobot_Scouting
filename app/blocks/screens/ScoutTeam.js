@@ -8,17 +8,21 @@ import { fU, vh, vw } from '../../common/Constants';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 import { TTButton, TTCheckbox, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTCounterInput, TTDropdown, TTNumberInput, TTTextInput } from '../components/InputComponents';
-import { serializeData, deserializeData, compressData, decompressData, saveMatchData, loadMatchData } from '../../common/LocalStorage'
+import { serializeData, deserializeData, compressData, decompressData, saveMatchData, loadMatchData,loadOtherSettings } from '../../common/LocalStorage'
 import { TTGradient } from '../components/ExtraComponents';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 
 const matchTypeValues = ["Practice", "Qualifiers", "Finals"];
-const teamColorValues = ["Red", "Blue"]
+const teamColorValues = ["Red", "Blue"];
+const deviceValues = ["Blue1","Blue2","Blue3","Red1","Red2","Red3"];
 
 // Main function
 const ScoutTeam = ({route, navigation}) => {
     // Might be good to make some of these into arrays
     
+    const [scouterName, setScouterName] = React.useState("");
+    const [device, setDevice] = React.useState("Device");
+
     const [teamNumber, setTeamNumber] = React.useState("");
     const [matchNumber, setMatchNumber] = React.useState("");
     const [matchType, setMatchType] = React.useState("Match Type");
@@ -49,19 +53,27 @@ const ScoutTeam = ({route, navigation}) => {
         setTelePoints(temp);
     }
     
+    const [teleParked, setTeleParked] = React.useState(false);
     const [teleDocked, setTeleDocked] = React.useState(false);
     const [teleEngaged, setTeleEngaged] = React.useState(false);
     const [comments, setComments] = React.useState("");
+
+
 
     // Prevents nothing entries
     const formatNumericState = (state) => {
         return ((state != "") ? Number(state) : 0);
     }
-
+    const formatNameState = (state) => {
+        return ((state != "") ? state.trim() : 0);
+    }
     // Serializes the data to a string and saves it
     const saveAndExit = async () => {
         const matchData = [
             // Pre Round
+            formatNameState(scouterName),
+            device != "Device" ? deviceValues.indexOf(device) : 0, 
+            
             formatNumericState(teamNumber), 
             formatNumericState(matchNumber),
             matchType != "Match Type" ? matchTypeValues.indexOf(matchType) : 1, 
@@ -87,6 +99,7 @@ const ScoutTeam = ({route, navigation}) => {
             formatNumericState(telePoints.coneMid),
             formatNumericState(telePoints.coneLow),
             formatNumericState(telePoints.misses),
+            teleParked ? 1 : 0,
             teleDocked ? 1 : 0,
             teleEngaged ? 1 : 0,
 
@@ -105,40 +118,58 @@ const ScoutTeam = ({route, navigation}) => {
 
     const loadSavedData = (data) => {
         // Pre Round
-        setTeamNumber(data[0]);
-        setMatchNumber(data[1]);
-        setMatchType(matchTypeValues[data[2]]);
-        setTeamColor(teamColorValues[data[3]]);
+        
+        setScouterName(data[0]);
+        setDevice(deviceValues[data[1]]);
+        setTeamNumber(data[2]);
+        setMatchNumber(data[3]);
+        setMatchType(matchTypeValues[data[4]]);
+        setTeamColor(teamColorValues[data[5]]);
 
         // Auto
-        setTaxi(Number(data[4]) ? true : false);
-        setAutoDocked(Number(data[5]) ? true : false);
-        setAutoEngaged(Number(data[6]) ? true : false);
+        setTaxi(Number(data[6]) ? true : false);
+        setAutoDocked(Number(data[7]) ? true : false);
+        setAutoEngaged(Number(data[8]) ? true : false);
         const autoPoints = {
-            cubeHigh: data[7], cubeMid: data[8], cubeLow: data[9],
-            coneHigh: data[10], coneMid: data[11], coneLow: data[12],
-            misses: data[13],
+            cubeHigh: data[9], cubeMid: data[10], cubeLow: data[11],
+            coneHigh: data[12], coneMid: data[13], coneLow: data[14],
+            misses: data[15],
         }
         setAutoPoints(autoPoints);
 
         // Teleop
         const telePoints = {
-            cubeHigh: data[14], cubeMid: data[15], cubeLow: data[16],
-            coneHigh: data[17], coneMid: data[18], coneLow: data[19],
-            misses: data[20],
+            cubeHigh: data[16], cubeMid: data[17], cubeLow: data[18],
+            coneHigh: data[19], coneMid: data[20], coneLow: data[21],
+            misses: data[22],
         }
         setTelePoints(telePoints);
-        setTeleDocked(Number(data[21]) ? true : false);
-        setTeleEngaged(Number(data[22]) ? true : false);
+        
+        setTeleParked(Number(data[23]) ? true : false);
+        setTeleDocked(Number(data[24]) ? true : false);
+        setTeleEngaged(Number(data[25]) ? true : false);
 
         // After Round
-        setComments(data[23]);
+        setComments(data[26]);
     }
+    
 
     React.useEffect(() => {
+        //Load setting defaults from tba and other settings if configured. 
+        const loadOtherSettingsToState = async () => {
+            const loadedOtherSettings = await loadOtherSettings();
+            if(loadedOtherSettings){
+                setDevice(loadedOtherSettings.device);
+            }
+        };      
+        
+        loadOtherSettingsToState();     
+
+        //Load data if a prior scouting match was passed to page. 
         if (route?.params?.matchData) {
             loadSavedData(route.params.matchData);
         }
+
     }, [])
 
     const scrollRef = React.useRef(null);
@@ -176,17 +207,63 @@ const ScoutTeam = ({route, navigation}) => {
             {/* All scouting settings go in the scroll view */}
             <KeyboardAvoidingView style={{flex: 1}} behavior="height">
             <ScrollView keyboardShouldPersistTaps='handled' ref={scrollRef}>
-                <View style={{height: 35*vh, zIndex: 1}}>
+                <View style={{height: 45*vh, zIndex: 1}}>
                     <Text style={styles.sectionHeader}>Pre-Round</Text>
 
+                    <View style={{...styles.rowAlignContainer, zIndex: 7}}>
+                        {/* ScouterName */}
+                        <TTTextInput
+                            state={scouterName}
+                            setState={setScouterName}
+                            maxLength={30}
+                            placeholder="Scouter Name"
+                            placeholderTextColor={`${CS.light1}50`}
+                            
+                            style={[
+                                {...globalInputStyles.numberInput, width: "45%", height: "75%"},
+                                globalTextStyles.labelText
+                            ]}
+                        />
+                        {/* Device */}
+                        <TTDropdown 
+                            state={device} 
+                            setState={setDevice} 
+                            items={deviceValues}
+                            boxWidth={40*vw}
+                            boxHeight={8*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                        />
+                    </View>
+                    {/* Match type and number */}
                     <View style={{...styles.rowAlignContainer, zIndex: 6}}>
+                        <TTDropdown 
+                            state={matchType} 
+                            setState={setMatchType} 
+                            items={matchTypeValues}
+                            boxWidth={40*vw}
+                            boxHeight={8*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={5}
+                        />
+                        <TTNumberInput
+                            state={matchNumber}
+                            setState={setMatchNumber}
+                            maxLength={3}
+                            placeholder="Match #"
+                            placeholderTextColor={`${CS.light1}50`}
+                            style={styles.topNumberInput}
+                        />
+                    </View>
+                    <View style={{...styles.rowAlignContainer, zIndex: 5}}>
                         {/* Team number */}
                         <TTNumberInput
                             state={teamNumber}
                             setState={setTeamNumber}
                             stateMax={9999}
                             maxLength={4}
-                            placeholder="Team Number"
+                            placeholder="Team #"
                             placeholderTextColor={`${CS.light1}50`}
                             style={styles.topNumberInput}
                         />
@@ -196,34 +273,11 @@ const ScoutTeam = ({route, navigation}) => {
                             setState={setTeamColor} 
                             items={teamColorValues}
                             boxWidth={40*vw}
-                            boxHeight={8.1*vh}
+                            boxHeight={8*vh}
                             boxStyle={globalInputStyles.dropdownInput}
                             textStyle={globalTextStyles.labelText}
                         />
                     </View>
-
-                    {/* Match type and number */}
-                    <View style={{...styles.rowAlignContainer, zIndex: 5}}>
-                        <TTDropdown 
-                            state={matchType} 
-                            setState={setMatchType} 
-                            items={matchTypeValues}
-                            boxWidth={40*vw}
-                            boxHeight={8.1*vh}
-                            boxStyle={globalInputStyles.dropdownInput}
-                            textStyle={globalTextStyles.labelText}
-                            zIndex={5}
-                        />
-                        <TTNumberInput
-                            state={matchNumber}
-                            setState={setMatchNumber}
-                            maxLength={3}
-                            placeholder="Match Number"
-                            placeholderTextColor={`${CS.light1}50`}
-                            style={styles.topNumberInput}
-                        />
-                    </View>
-                    
                     {/* Rudamentary spacer */}
                     <View style={{marginBottom: 5*vh}}/> 
                 </View>
@@ -315,7 +369,7 @@ const ScoutTeam = ({route, navigation}) => {
                         <TTSimpleCheckbox 
                             state={taxi}
                             setState={setTaxi}
-                            text="Taxi?" 
+                            text="Mobility?" 
                             overallStyle={{height: "100%", alignSelf: "center"}}
                             textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
                             boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
@@ -439,6 +493,15 @@ const ScoutTeam = ({route, navigation}) => {
                     
                     <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
                         <TTSimpleCheckbox 
+                            state={teleParked}
+                            setState={setTeleParked}
+                            text="Parked?" 
+                            overallStyle={{height: "100%", alignSelf: "center"}}
+                            textStyle={{...globalTextStyles.labelText}}
+                            boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
+                            boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
+                        />
+                        <TTSimpleCheckbox 
                             state={teleDocked}
                             setState={setTeleDocked}
                             text="Docked?" 
@@ -525,4 +588,4 @@ const styles = StyleSheet.create({
 // Exports
 export default ScoutTeam;
 
-export { matchTypeValues, teamColorValues };
+export { matchTypeValues, teamColorValues, deviceValues, styles };
