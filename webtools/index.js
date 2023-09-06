@@ -203,7 +203,7 @@ const downloadDataToXLSX = async () => {
     );
 
     // Split
-    const delimiter = String.fromCharCode(29);
+    const delimiter = String.fromCharCode(124);
     const deserializeData = (data) => {    
         return data.split(delimiter);
     };
