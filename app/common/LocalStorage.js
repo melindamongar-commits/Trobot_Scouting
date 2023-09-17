@@ -148,6 +148,7 @@ const loadMatchData = async (key) => {
 // Reads the latest stored version of the match meta data
 const loadMatchCache = async () => {
     const data = await readData(matchCacheKey);
+    if (!data) return null;
     try {
         const parsedData = JSON.parse(data);
         return parsedData;
@@ -184,6 +185,7 @@ const loadOtherSettings = async () => {
     // This probably shouldn't even include a try function because it shouldn't accept settings that don't parse correctly
     try {
         const parsedSettings = JSON.parse(loadedOtherSettings);
+        //console.log(parsedSettings);
         return parsedSettings;
     } catch (e) {
         return null;
@@ -220,6 +222,7 @@ const saveTbaEventCache = async (tbaData) => {
 // Helper function to load cloud cache
 const loadTbaEventCache = async () => {
     const loadedCache = await readData(tbaEventCacheKey);
+    if (!loadedCache) return null;
     //console.log(loadedCache);
     try {
         const parsedData = JSON.parse(loadedCache);
@@ -234,6 +237,8 @@ const loadTbaEventCache = async () => {
 export { 
     settingsKey,
     otherSettingsKey,
+    matchCacheKey,
+    tbaEventCacheKey,
     cloudCacheKey,
     delimiter,
     readData,

@@ -172,12 +172,12 @@ const ScoutTeam = ({route, navigation}) => {
                 setDevice(loadedOtherSettings.device);
                 setTeamColor(loadedOtherSettings.device.includes("Blue")?"Blue":"Red");
                 setEventKey(loadedOtherSettings.eventKey);
-            }
+            };
             //GetMatchCache which stores the last match data
             const loadMatch = await loadMatchCache()
-
+           
             if (loadMatch) {
-                //console.log(loadMatch.matchNumber);
+               
                 if (loadMatch.matchNumber==="0"){
                     setMatchNumber("1");
                 } else {
@@ -188,41 +188,68 @@ const ScoutTeam = ({route, navigation}) => {
             } else {
                 setMatchNumber("1");
                 setMatchType("Qualifiers");
-            }
+            };
             //GetTBAEventMatchData to populate the team number
             const loadTbaEvent = await loadTbaEventCache();
 
-            if(loadTbaEvent){
-                if (loadMatch.matchType == 'Qualifiers')
-                {
-                    //var teamItem = JSON.parse(loadTbaEvent).(function(e) {
-                    //    return e.matchNumber === loadMatch.matchNumber;
-                    //});
-                    //console.log(teamItem);
-                    setTeamNumber("5");                    
-                }
-            }
+            if (loadTbaEvent) {
+                for (i = 0; i < JSON.parse(loadTbaEvent).length; i++) {
+                    const data = JSON.parse(loadTbaEvent)[i];
+                    var mt = "Qualifiers";
+                    var mn = 1;                
+                    try{
+                        if (loadMatch) {
+                            mt = loadMatch.matchType;
+                            mn = String(Number(loadMatch.matchNumber) + 1);
+                        }  
+                        
+                        if (data.eventkey == loadedOtherSettings.eventKey
+                        && (mt == "Qualifiers")
+                        && data.complevel == "qm"
+                        && mn == String(data.matchnumber)) {
 
-         };      
-        
-        loadOtherSettingsToState();   
-        
-        //const loadTbaEventToState = async () => {
-        //    const loadTbaEvent = await loadTbaEventCache();
- 
-            //console.log(loadTbaEvent);
-        //    if (loadTbaEvent !== null) {
-       //         if (loadTbaEvent[0].eventKey == otherSettings.eventKey){
-        //            setHasTbaEvent(true);
-        //        }
-        //    }
-        
-       // }
-       // loadTbaEventToState();  
+                        var team = "";
+                        switch(loadedOtherSettings.device) {
+                            case "Blue3":
+                                team = data.blue3.replace("frc","");
+                                break;
+                            case "Blue2":
+                                team =data.blue2.replace("frc","");
+                                break;
+                            case "Blue1":
+                                team = data.blue1.replace("frc","");
+                                break;
+                            case "Red3":
+                                team = data.red3.replace("frc","");
+                                break;
+                            case "Red2":
+                                team = data.red2.replace("frc","");
+                                break;
+                            case "Red1":
+                                team = data.red1.replace("frc","");
+                                break;
+                            default:
+                                team = "";
+                                break;
+                            };
+                            //console.log(team);
+                            setTeamNumber(team);
+                        };
+                    } catch(e) {
+                        console.error(e);
+                    }
+                };
+            } else {
+                setTeamNumber("");
+            };
 
+        };       
+        
         //Load data if a prior scouting match was passed to page. 
         if (route?.params?.matchData) {
             loadSavedData(route.params.matchData);
+        } else {
+            loadOtherSettingsToState();  
         }
 
     }, [])

@@ -164,7 +164,7 @@ const globalTextStyles = StyleSheet.create({
     secondaryText: {
         // Formatting
         fontFamily: "Bebas",
-        fontSize: 36*fU,
+        fontSize: 24*fU,
         alignSelf: "center",
 
         // Color
