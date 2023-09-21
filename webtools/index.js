@@ -226,13 +226,7 @@ const downloadDataToXLSX = async () => {
 
     for (const team of Object.keys(fileContents)) {
         const teamSheet = XLSX.utils.aoa_to_sheet([
-            [
-                "Match Number", "Match Type", "Color", 
-                "Taxi?", "Auto Docked?", "Auto Engaged?", "Auto Cube High", "Auto Cube Mid", "Auto Cube Low", "Auto Cone High", "Auto Cone Mid", "Auto Cone Low", "Auto Misses",
-                "Teleop Cube High", "Teleop Cube Mid", "Teleop Cube Low", "Teleop Cone High", "Teleop Cone Mid", "Teleop Cone Low", "Teleop Misses", "Teleop Docked?", "Teleop Engaged?",
-                "Comments"
-            ],
-            ...(fileContents[team].map(match => [
+            (fileContents[team].map(match => [
                 match[1],
                 matchTypeValues[match[2]],
                 teamColorValues[match[3]],
