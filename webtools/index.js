@@ -223,20 +223,32 @@ const downloadDataToXLSX = async () => {
     // Constants
     const matchTypeValues = ["Practice", "Qualifiers", "Finals"];
     const teamColorValues = ["Red", "Blue"]
+    const deviceValues = ["Blue1","Blue2","Blue3","Red1","Red2","Red3"];
 
     for (const team of Object.keys(fileContents)) {
         const teamSheet = XLSX.utils.aoa_to_sheet([
-            (fileContents[team].map(match => [
-                match[1],
-                matchTypeValues[match[2]],
-                teamColorValues[match[3]],
-                Number(match[4]) ? true : false,
-                Number(match[5]) ? true : false,
+            [
+                "ScouterName","Device","TeamNumber","MatchNumber","MatchType","AllianceColor",
+                "Mobility","AutoDocked","AutoEngaged",
+                "AutoCubeHigh","AutoCubeMid","AutoCubeLow","AutoConeHigh","AutoConeMid","AutoConeLow","AutoMisses",
+                "TeleCubeHigh","TeleCubeMid","TeleCubeLow","TeleConeHigh","TeleConeMid","TeleConeLow","TeleMisses",
+                "EndgameParked","EndgameDocked","EndgameEngaged","Comments"            ],
+            ...(fileContents[team].map(match => [
+                match[0],
+                deviceValues[match[1]],
+                match[2],
+                match[3],
+                matchTypeValues[match[4]],
+                teamColorValues[match[5]],
                 Number(match[6]) ? true : false,
-                ...match.slice(7, 21),
-                Number(match[21]) ? true : false,
-                Number(match[22]) ? true : false,
-                match[23]
+                Number(match[7]) ? true : false,
+                Number(match[8]) ? true : false,
+                ...match.slice(9, 22),
+                Number(match[23]) ? true : false,
+                Number(match[24]) ? true : false,
+                Number(match[25]) ? true : false,
+                match[26],
+                match[27]
             ]))
         ]);
 
