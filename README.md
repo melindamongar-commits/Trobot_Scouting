@@ -1,9 +1,9 @@
-<a href="https://play.google.com/store/apps/details?id=com.team4829.tigerscout">
+<!-- <a href="https://play.google.com/store/apps/details?id=com.team4829.tigerscout">
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/320px-Google_Play_Store_badge_EN.svg.png" width="150">
 </a>
 <a href="https://apps.apple.com/us/app/tiger-scout/id1672824033">
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/320px-Download_on_the_App_Store_Badge.svg.png" width="150">
-</a>
+</a> -->
 
 # TrobotScout
 TrobotScout is based on TigerScout and we incorporated the changes to support TBA integrations for match data and to provide pre-fill on pre-scout information when scouting from match to match.
