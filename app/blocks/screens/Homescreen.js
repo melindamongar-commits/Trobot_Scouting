@@ -36,7 +36,7 @@ const Homescreen = ({route, navigation}) => {
                 fontFamily: "LGC Light",
                 letterSpacing: 0.5*vw
             }}>
-                <Text style={{fontFamily: "LGC Bold"}}>5013 Scouting App</Text>
+                <Text style={{fontFamily: "LGC Bold"}}>Trobots 5013 Scouting App</Text>
             </Text>
             
             {/* Scout */}
@@ -46,17 +46,36 @@ const Homescreen = ({route, navigation}) => {
                     globalButtonStyles.primaryButton,
                     {   
                         borderRadius: 2 * vw,
-                        height: 50 * vh,
+                        height: 30 * vh,
                     }
                 ]}
                 textStyle={[
                     globalTextStyles.primaryText,
                     {
-                        fontSize: 60 * fU,
+                        fontSize: 42 * fU,
                         color: CS.light1
                     }
                 ]}
                 onPress= {() => navigation.navigate("ScoutTeam", {})}
+            />
+            {/* Pit Scout */}
+                        <TTButton 
+                text="Pit Scout"
+                buttonStyle={[
+                    globalButtonStyles.secondaryButton,
+                    {   
+                        borderRadius: 2 * vw,
+                        height: 10 * vh,
+                    }
+                ]}
+                textStyle={[
+                    globalTextStyles.primaryText,
+                    {
+                        fontSize: 42 * fU,
+                        color: CS.light1
+                    }
+                ]}
+                onPress= {() => navigation.navigate("PitScout", {})}
             />
 
             {/* Local Data */}

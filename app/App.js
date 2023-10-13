@@ -9,6 +9,7 @@ import { useFonts } from 'expo-font';
 // Block imports
 import Homescreen from './blocks/screens/Homescreen';
 import ScoutTeam from './blocks/screens/ScoutTeam';
+import PitScout from './blocks/screens/PitScout';
 import LocalData from './blocks/screens/LocalData';
 import CloudData from './blocks/screens/CloudData';
 import TeamAnalytics from './blocks/screens/TeamAnalytics';
@@ -75,6 +76,11 @@ const App = () => {
                 {/* Scouting screen */}
                 <Stack.Screen name="ScoutTeam" options={{title: "Scout Team", ...headerStyles}}>
                     {(props) => <ScoutTeam {...props}/>}
+                </Stack.Screen>
+
+                {/* Pit Scouting screen */}
+                <Stack.Screen name="PitScout" options={{title: "Pit Scout", ...headerStyles}}>
+                    {(props) => <PitScout {...props}/>}
                 </Stack.Screen>
 
                 {/* Local data screen */}

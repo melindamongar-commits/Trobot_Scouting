@@ -14,8 +14,8 @@ import { loadCloudCache, loadSettings, saveCloudCache } from '../../common/Local
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTDropdown } from '../components/InputComponents';
 
-const sortableValues = ["Team Number", "Auto Points", "Teleop Points", "Misses", "Cubes", "Cones", "Docking"];
-const sortableKeys = [null, "auto", "teleop", "misses", "cubes", "cones", "docking"];
+const sortableValues = ["Team Number", "Total Points","Auto Points", "Teleop Points", "Misses", "Cubes", "Cones", "Docking"];
+const sortableKeys = [null, "total","auto", "teleop", "misses", "cubes", "cones", "docking"];
 
 // Main function
 const CloudData = ({route, navigation}) => {
@@ -40,19 +40,23 @@ const CloudData = ({route, navigation}) => {
         const teamAverages = {};
         // Loop over every team
         for (const teamNumber of Object.keys(teamData)) {
-            const averages = { auto: 0, teleop: 0, misses: 0, cubes: 0, cones: 0, docking: 0 };
+            const averages = { total: 0, auto: 0, teleop: 0, misses: 0, cubes: 0, cones: 0, docking: 0 };
             const count = teamData[teamNumber].length;
             // For every md (match data), add to the average for each stat
             for (const md of teamData[teamNumber]) {
                 // This is horrible
+                averages.total += 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]))
+                + 5*(Number(md[16])+Number(md[19])) + 3*(Number(md[17])+Number(md[20]))+ 2*(Number(md[18])+Number(md[21]))
+                + 8*Number(md[7]) + 12*Number(md[8]) + 6*Number(md[24]) + 10*Number(md[25]) + 2*Number(md[23]) + 3*Number(md[6]);
                 averages.auto += 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]));
                 averages.teleop += 5*(Number(md[16])+Number(md[19])) + 3*(Number(md[17])+Number(md[20]))+ 2*(Number(md[18])+Number(md[21]));
                 averages.misses += Number(md[15]) + Number(md[22]);
                 averages.cubes += Number(md[9])+Number(md[10])+Number(md[11]) + Number(md[16])+Number(md[17])+Number(md[18]);
                 averages.cones += Number(md[12])+Number(md[13])+Number(md[14]) + Number(md[19])+Number(md[20])+Number(md[21]);
-                averages.docking += 8*Number(md[7]) + 4*Number(md[8]) + 6*Number(md[24]) + 4*Number(md[25]) + 2*Number(md[23]);
+                averages.docking += 8*Number(md[7]) + 12*Number(md[8]) + 6*Number(md[24]) + 10*Number(md[25]) + 2*Number(md[23]);
             }
             // Average out and round
+            averages.total = Math.round(10*averages.total / count) / 10;
             averages.auto = Math.round(10*averages.auto / count) / 10;
             averages.teleop = Math.round(10*averages.teleop / count) / 10;
             averages.misses = Math.round(10*averages.misses / count) / 10;
@@ -66,7 +70,7 @@ const CloudData = ({route, navigation}) => {
     }
 
     // Sorts an object by key values of another object
-    // Ultra specified to work just for sorting by staistics
+    // Ultra specified to work just for sorting by statistics
     const getSortedObjectOrder = (baseObject, valuesObject, sortKey, reverse) => {
         const objectKeys = Object.keys(baseObject);
         if (sortKey === null) {
