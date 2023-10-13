@@ -8,9 +8,9 @@ const ColorScheme = {
     light2: "#F7F3E1",
     light3: "#CCC1B8",
 
-    accent1: "#D07E32",
-    accent2: "#E17512", 
-    accent3: "#E64D27",
+    accent1: "#cc4141",
+    accent2: "#a10606", 
+    accent3: "#700303",
 
     dark1: "#1E1E1E",
     dark2: "#3E4743",

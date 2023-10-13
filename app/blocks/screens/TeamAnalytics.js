@@ -25,7 +25,7 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const checkEmptyComments = () => {
         for (const match of route.params.teamData) {
-            if (match[26].length !== 0) return false;
+            if (match[27].length !== 0) return false;
         }
         return true;
     }
@@ -46,6 +46,14 @@ const TeamAnalytics = ({route, navigation}) => {
     // Should be a better way to do this
     const getSpecificData = (section) => {
         switch (section) {
+            case ("Total Points"): {
+                const points = route.params.teamData.map((md) => {
+                    return 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]))
+                    + 5*(Number(md[16])+Number(md[19])) + 3*(Number(md[17])+Number(md[20]))+ 2*(Number(md[18])+Number(md[21]))
+                    + 8*Number(md[7]) + 12*Number(md[8]) + 6*Number(md[24]) + 10*Number(md[25]) + 2*Number(md[23]) + 3*Number(md[6]);
+                });
+                return points;
+            } break;
             case ("Auto Points"): {
                 const points = route.params.teamData.map((md) => {
                     return 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]));
@@ -66,19 +74,19 @@ const TeamAnalytics = ({route, navigation}) => {
             } break;
             case ("Docking"): {
                 const count = route.params.teamData.map((md) => {
-                    return 8*Number(md[7]) + 4*Number(md[8]) + 6*Number(md[24]) + 4*Number(md[25]) + 2*Number(md[23]);
+                    return 8*Number(md[7]) + 12*Number(md[8]) + 6*Number(md[24]) + 10*Number(md[25]) + 2*Number(md[23]);
                 });
                 return count;
             } break;
             case ("Cubes"): {
                 const count = route.params.teamData.map((md) => {
-                    return Number(md[12])+Number(md[13])+Number(md[14]) + Number(md[19])+Number(md[20])+Number(md[21]);
+                    return Number(md[9])+Number(md[10])+Number(md[11]) + Number(md[16])+Number(md[17])+Number(md[18]);
                 });
                 return count;
             } break;
             case ("Cones"): {
                 const count = route.params.teamData.map((md) => {
-                    return Number(md[9])+Number(md[10])+Number(md[11]) + Number(md[16])+Number(md[17])+Number(md[18]);
+                    return Number(md[12])+Number(md[13])+Number(md[14]) + Number(md[19])+Number(md[20])+Number(md[21]);
                 });
                 return count;
             } break;
