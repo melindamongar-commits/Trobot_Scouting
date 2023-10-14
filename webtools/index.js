@@ -212,7 +212,7 @@ const downloadDataToXLSX = async () => {
     const fileContents = {};
     for (const stringData of allFileData) {
         const data = deserializeData(stringData);
-        const teamNumber = data[3];
+        const teamNumber = data[2];
         if (fileContents[teamNumber] == null) fileContents[teamNumber] = [data];
         else fileContents[teamNumber].push(data);
     }
