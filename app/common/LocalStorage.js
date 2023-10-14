@@ -23,6 +23,7 @@ const settingsKey = "@settingsKey";
 const otherSettingsKey = "@OtherSettingsKey";
 const cloudCacheKey = "@cloudCacheKey";
 const tbaEventCacheKey = "@tbaEventCacheKey";
+const matchCacheKey = "@matchCacheKey"
 const delimiter = String.fromCharCode(124);
 
 // Take a list of data and packs it into a string. Only works with lists numbers and strings
@@ -50,7 +51,7 @@ const decompressData = (compressedData) => {
 // Stores data at a key. Returns false if there there was an error, returns true otherwise.
 const writeData = async (data, key) => {
     try {
-        console.log(data)
+        //console.log(data)
         await AsyncStorage.setItem(key, data);
         return true;
     } catch (e) {
@@ -64,7 +65,7 @@ const readData = async (key) => {
     try {
         const data = await AsyncStorage.getItem(key);
         if (data !== null) {
-            console.log(data)
+            //console.log(data)
             return data;
         }
     } catch (e) {
@@ -127,6 +128,12 @@ const saveMatchData = async (data) => {
     return await writeData(serializedData, key);
 };
 
+//Save latest version of match meta data for reuse.
+const saveMatchCache = async (data) => {
+    const stringData = JSON.stringify(data);
+    return await writeData(stringData, matchCacheKey);
+};
+
 // Reads the data stored at a key value. Returns false if there was an error, returns list of data otherwise.
 const loadMatchData = async (key) => {
     const data = await readData(key);
@@ -135,6 +142,18 @@ const loadMatchData = async (key) => {
     } else {
         const listData = deserializeData(data);
         return listData;
+    }
+};
+
+// Reads the latest stored version of the match meta data
+const loadMatchCache = async () => {
+    const data = await readData(matchCacheKey);
+    if (!data) return null;
+    try {
+        const parsedData = JSON.parse(data);
+        return parsedData;
+    } catch (e) {
+        return null;
     }
 };
 
@@ -166,6 +185,7 @@ const loadOtherSettings = async () => {
     // This probably shouldn't even include a try function because it shouldn't accept settings that don't parse correctly
     try {
         const parsedSettings = JSON.parse(loadedOtherSettings);
+        //console.log(parsedSettings);
         return parsedSettings;
     } catch (e) {
         return null;
@@ -191,18 +211,24 @@ const loadCloudCache = async () => {
 
 
 // Helper function to save cloud cache
-const savetbaEventCache = async (tbaData) => {
+const saveTbaEventCache = async (tbaData) => {
+    //console.log(tbaData);
+    
     const stringData = JSON.stringify(tbaData);
+    //console.log(stringData);
     return await writeData(stringData, tbaEventCacheKey);
 }
 
 // Helper function to load cloud cache
-const loadtbaEventCache = async () => {
+const loadTbaEventCache = async () => {
     const loadedCache = await readData(tbaEventCacheKey);
+    if (!loadedCache) return null;
+    //console.log(loadedCache);
     try {
         const parsedData = JSON.parse(loadedCache);
         return parsedData;
     } catch (e) {
+        console.error(e);
         return null;
     }
 }
@@ -211,6 +237,8 @@ const loadtbaEventCache = async () => {
 export { 
     settingsKey,
     otherSettingsKey,
+    matchCacheKey,
+    tbaEventCacheKey,
     cloudCacheKey,
     delimiter,
     readData,
@@ -228,5 +256,9 @@ export {
     loadSettings,
     loadOtherSettings,
     saveCloudCache,
+    saveTbaEventCache,
+    loadTbaEventCache,
     loadCloudCache,
+    loadMatchCache,
+    saveMatchCache
 }

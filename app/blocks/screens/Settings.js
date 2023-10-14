@@ -11,11 +11,13 @@ import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTAlert, TTConfirmation, TTGradient, TTWarning, TTPoll } from '../components/ExtraComponents';
 import { TTButton, TTPushButton,  TTSimpleCheckbox } from '../components/ButtonComponents';
 import { readStringFromCloud, initializeFirebaseFromSettings } from '../../common/CloudStorage';
-import { readData, writeData, loadSettings, loadOtherSettings, deleteData, settingsKey, otherSettingsKey, saveCloudCache } from '../../common/LocalStorage';
+import { readData, writeData, loadSettings, loadOtherSettings, deleteData, settingsKey, otherSettingsKey, saveCloudCache, saveTbaEventCache, loadTbaEventCache, loadMatchCache, saveMatchCache, tbaEventCacheKey, matchCacheKey } from '../../common/LocalStorage';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 import { vh,vw } from '../../common/Constants';
 import { TTTextInput, TTDropdown } from '../components/InputComponents';
 import { styles, deviceValues } from '../screens/ScoutTeam';
+
+import { getTBAEventData } from '../../common/TbaEventStorage';
 
 
 // Main function
@@ -47,6 +49,9 @@ const Settings = ({route, navigation}) => {
     const [tbaKey, setTBAKey]= React.useState("");
 
     const [otherSettings, setOtherSettings] = React.useState({});
+    const [hasTbaEvent, setHasTbaEvent] = React.useState(false);
+
+    const [tbaEventData, setTbaEventData] = React.useState("");
 
     // Settings
     const [settings, setSettings] = React.useState({});
@@ -69,12 +74,26 @@ const Settings = ({route, navigation}) => {
 
         const loadOtherSettingsToState = async () => {
             const loadedOtherSettings = await loadOtherSettings();
-            setOtherSettings(loadedOtherSettings);
-            setTBAKey(loadedOtherSettings.tbaKey);
-            setEventKey(loadedOtherSettings.eventKey);
-            setDevice(loadedOtherSettings.device);
+           
+            if(loadedOtherSettings){
+                setOtherSettings(loadedOtherSettings);
+                if(loadedOtherSettings.tbaKey){
+                    setTBAKey(loadedOtherSettings.tbaKey);
+                };
+
+                setEventKey(loadedOtherSettings.eventKey);
+                setDevice(loadedOtherSettings.device);
+
+                const loadTbaEvent = await loadTbaEventCache();
+                if (loadTbaEvent !== null) {
+                    if (JSON.parse(loadTbaEvent)[0].eventkey == loadedOtherSettings.eventKey){
+                        setHasTbaEvent(true);
+                    } 
+                }
+            }
+          
         };
-        loadOtherSettingsToState();
+        loadOtherSettingsToState()
 
         // Loading firebase from settings
         initializeFirebaseFromSettings();
@@ -101,8 +120,10 @@ const Settings = ({route, navigation}) => {
                 </Text>
             </View>
         );
+
     }
     const saveOtherSettings = async () => {
+
         const otherSettings = {
             device: device,
             tbaKey: tbaKey,
@@ -110,9 +131,25 @@ const Settings = ({route, navigation}) => {
         };
         
         setOtherSettings(otherSettings);
-        writeData(JSON.stringify(otherSettings), otherSettingsKey);
-
         
+        writeData(JSON.stringify(otherSettings), otherSettingsKey);
+        await saveTbaEventCache(await getTBAEventData(tbaKey, eventKey));
+        try  {  
+            const loadTbaEvent = await loadTbaEventCache();
+
+            if (loadTbaEvent !== null) {      
+                if (JSON.parse(loadTbaEvent)[0].eventkey == eventKey){
+                    setHasTbaEvent(true);
+                }
+            } else {
+                setHasTbaEvent(false);
+            }
+
+        } catch(e) {
+            console.error(e);
+            setHasTbaEvent(false);
+        }
+           
     }
 
     const connectFromData = async () => {
@@ -135,7 +172,6 @@ const Settings = ({route, navigation}) => {
                     return;
                 }
             }
-
             
             const settings = {
                 bucketName: parsedData.bucketName,
@@ -167,7 +203,18 @@ const Settings = ({route, navigation}) => {
         deleteData(settingsKey);
         setSettings(null);
         saveCloudCache(null);
-    }
+    };
+
+    const clearTBACache = () => {
+        
+        setHasTbaEvent(false);
+        deleteData(otherSettingsKey);
+        deleteData(tbaEventCacheKey);
+        deleteData(matchCacheKey);
+        setOtherSettings(null);
+        setHasTbaEvent(false);
+        
+    };
     //
     //  QR Code Scanner
     //
@@ -233,8 +280,10 @@ const Settings = ({route, navigation}) => {
                         />
 
                         <View style={{margin: 1 * vh}}/>
-                        <Text style={styles.sectionHeader}>Other Settings</Text>
-                        <View style={{height: 25*vh, zIndex: 1}}>
+                        <Text style={styles.sectionHeader}>TBA Settings</Text>
+
+                        <View style={{height: 46*vh, zIndex: 1}}>
+
                             {/*TBA KEY*/}
                             <View style={styles.rowAlignContainer}>
                             <TTTextInput
@@ -243,11 +292,11 @@ const Settings = ({route, navigation}) => {
                                 placeholder="Enter TBA Key"
                                 placeholderTextColor={`${CS.light1}50`}
                                 multiline={true}
-                                maxLength={50}
+                                maxLength={65}
                                 numberOfLines={4}
                                 
                                 style={[
-                                    {...globalInputStyles.numberInput, width: "90%", height: 7*vh},
+                                    {...globalInputStyles.numberInput, width: "90%", height: 8*vh},
                                     globalTextStyles.labelText
                                 ]}
                             />
@@ -262,7 +311,7 @@ const Settings = ({route, navigation}) => {
                                 placeholder="Enter Event Key"
                                 placeholderTextColor={`${CS.light1}50`}
                                 multiline={false}
-                                maxLength={50}
+                                maxLength={65}
                                 numberOfLines={1}                          
                                 style={[
                                     {...globalInputStyles.numberInput, width: "90%", height: 5*vh},
@@ -283,13 +332,30 @@ const Settings = ({route, navigation}) => {
                                 textStyle={globalTextStyles.labelText}
                             />
                             </View>
+                            <View style={{margin: 1 * vh}}/>
+                            <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
+                                Connected to TBA Match Data:
+                            </Text>
+                            <Text style={{...globalTextStyles.secondaryText, fontSize: 20, color: `${CS.light1}99`, marginHorizontal: 3*vh}}>
+                                {hasTbaEvent.toString()}
+                            </Text>
+                            <View style={{margin: 1 * vh}}/>
                             
                             <TTButton
-                                text="Save Settings"
+                                text="Save Settings & Get Match Data"
                                 buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
                                 textStyle={{...globalTextStyles.secondaryText, fontSize: 24}}
                                 onPress={() => {
-                                    saveOtherSettings("")
+                                    saveOtherSettings("");
+                                    }
+                                }
+                            />
+                            <TTButton
+                                text="Clear TBA Cache"
+                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
+                                textStyle={{...globalTextStyles.secondaryText, fontSize:24}}
+                                onPress={() => {
+                                    clearTBACache("");
                                     }
                                 }
                             />
@@ -305,10 +371,8 @@ const Settings = ({route, navigation}) => {
 
                         <View style={globalContainerStyles.columnContainer}>
 
-
-                        <View style={{margin: 1 * vh}}/>
-                        <Text style={{...globalTextStyles.labelText, fontSize: 18, color: CS.light1, margin: 3*vh}}>
-                            To get connected, scan a team's QR code.
+                        <Text style={styles.sectionHeader}>
+                            Connect to StorageBucket
                         </Text>                       
                         <TTButton 
                             text="Scan QR Code" 
@@ -316,11 +380,11 @@ const Settings = ({route, navigation}) => {
                                 setConnectionData("");
                                 setScanned(false);
                             }}
-                            buttonStyle={{...globalButtonStyles.primaryButton, width: "80%"}} 
+                            buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}} 
                             textStyle={globalTextStyles.secondaryText}
                         />
-                        <Text style={{...globalTextStyles.labelText, fontSize: 18, color: CS.light1, margin: 3*vh}}>
-                            Or connect with text
+                        <Text style={{...globalTextStyles.labelText, fontSize: 18, color: CS.light1}}>
+                            Or
                         </Text>
                         <TTButton 
                             text="Enter Text" 
@@ -328,13 +392,14 @@ const Settings = ({route, navigation}) => {
                                 setConnectionData("");
                                 setEnterTextVisible(true);
                             }}
-                            buttonStyle={{...globalButtonStyles.primaryButton, width: "80%"}} 
+                            buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}} 
                             textStyle={globalTextStyles.secondaryText}
+                            
                         />
-                        
-                        <View style={{margin: 1 * vh}}/>
-                        <Text style={styles.sectionHeader}>Other Settings</Text>
-                        <View style={{height: 25*vh, zIndex: 1}}>
+                        <View style={{margin: 1 * vh}}/>                        
+                        <Text style={styles.sectionHeader}>TBA Settings</Text>
+   
+                        <View style={{height: 46*vh, zIndex: 1}}>
                             {/*TBA KEY*/}
                             <View style={styles.rowAlignContainer}>
                             <TTTextInput
@@ -343,17 +408,16 @@ const Settings = ({route, navigation}) => {
                                 placeholder="Enter TBA Key"
                                 placeholderTextColor={`${CS.light1}50`}
                                 multiline={true}
-                                maxLength={50}
+                                maxLength={65}
                                 numberOfLines={4}
                                 
                                 style={[
-                                    {...globalInputStyles.numberInput, width: "90%", height: 5*vh},
+                                    {...globalInputStyles.numberInput, width: "90%", height: 8*vh},
                                     globalTextStyles.labelText
                                 ]}
                             />
                             </View>
                             
-                            <View style={{margin: 1 * vh}}/>
                             {/*Event KEY*/}
                             <View style={styles.rowAlignContainer}>
                             <TTTextInput
@@ -383,13 +447,28 @@ const Settings = ({route, navigation}) => {
                                 textStyle={globalTextStyles.labelText}
                             />
                             </View>
+                            <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
+                                Connected to TBA Match Data:
+                            </Text>
+                            <Text style={{...globalTextStyles.secondaryText, fontSize: 20, color: `${CS.light1}99`, marginHorizontal: 3*vh}}>
+                                {hasTbaEvent.toString()}
+                            </Text>
                             
                             <TTButton
-                                text="Save Settings"
+                                text="Save Settings & Get Match Data"
                                 buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
                                 textStyle={{...globalTextStyles.secondaryText, fontSize:24}}
                                 onPress={() => {
-                                    saveOtherSettings("")
+                                    saveOtherSettings("");
+                                    }
+                                }
+                            />
+                            <TTButton
+                                text="Clear TBA Cache"
+                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
+                                textStyle={{...globalTextStyles.secondaryText, fontSize:24}}
+                                onPress={() => {
+                                    clearTBACache("");
                                     }
                                 }
                             />
