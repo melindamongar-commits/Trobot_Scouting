@@ -8,7 +8,7 @@ import { fU, vh, vw } from '../../common/Constants';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 import { TTButton, TTCheckbox, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTCounterInput, TTDropdown, TTNumberInput, TTTextInput } from '../components/InputComponents';
-import { serializeData, deserializeData, compressData, decompressData, saveMatchData, loadMatchData,loadOtherSettings } from '../../common/LocalStorage'
+import { serializeData, deserializeData, compressData, decompressData, saveMatchData, loadMatchData,loadOtherSettings, loadTbaEventCache, loadMatchCache, saveMatchCache} from '../../common/LocalStorage'
 import { TTGradient } from '../components/ExtraComponents';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 
@@ -57,7 +57,7 @@ const ScoutTeam = ({route, navigation}) => {
     const [teleDocked, setTeleDocked] = React.useState(false);
     const [teleEngaged, setTeleEngaged] = React.useState(false);
     const [comments, setComments] = React.useState("");
-
+    const [eventKey, setEventKey] = React.useState("");
 
 
     // Prevents nothing entries
@@ -73,11 +73,10 @@ const ScoutTeam = ({route, navigation}) => {
             // Pre Round
             formatNameState(scouterName),
             device != "Device" ? deviceValues.indexOf(device) : 0, 
-            
             formatNumericState(teamNumber), 
             formatNumericState(matchNumber),
             matchType != "Match Type" ? matchTypeValues.indexOf(matchType) : 1, 
-            teamColor != "Team Color" ? teamColorValues.indexOf(teamColor) : 0, 
+            teamColor != "Team Color" ? (device.includes("Blue")?"Blue":"Red") : 0, 
 
             // Auto
             taxi ? 1 : 0,
@@ -104,12 +103,20 @@ const ScoutTeam = ({route, navigation}) => {
             teleEngaged ? 1 : 0,
 
             // After Round
+            eventKey,
             comments,
         ];
 
+        const matchCache = {
+            'scouterName' : formatNameState(scouterName),
+            'matchNumber' : formatNumericState(matchNumber),
+            'matchType' : matchType
+        };
+
         // Save data using hash
         try {
-            await saveMatchData(matchData)
+            await saveMatchData(matchData);
+            await saveMatchCache(matchCache);
             navigation.navigate("Home");
         } catch (e) {
             console.error(`Error Saving Data: ${e}`);
@@ -150,24 +157,99 @@ const ScoutTeam = ({route, navigation}) => {
         setTeleEngaged(Number(data[25]) ? true : false);
 
         // After Round
-        setComments(data[26]);
+        
+        setEventKey(data[26]);
+        setComments(data[27]);
     }
     
 
     React.useEffect(() => {
         //Load setting defaults from tba and other settings if configured. 
         const loadOtherSettingsToState = async () => {
+            //Get Other Settings used to pull TBA data and determine device
             const loadedOtherSettings = await loadOtherSettings();
             if(loadedOtherSettings){
                 setDevice(loadedOtherSettings.device);
-            }
-        };      
-        
-        loadOtherSettingsToState();     
+                setTeamColor(loadedOtherSettings.device.includes("Blue")?"Blue":"Red");
+                setEventKey(loadedOtherSettings.eventKey);
+            };
+            //GetMatchCache which stores the last match data
+            const loadMatch = await loadMatchCache()
+           
+            if (loadMatch) {
+               
+                if (loadMatch.matchNumber==="0"){
+                    setMatchNumber("1");
+                } else {
+                    setMatchNumber((Number(loadMatch.matchNumber) + 1).toString())
+                }
+                setScouterName(loadMatch.scouterName);
+                setMatchType(loadMatch.matchType);
+            } else {
+                setMatchNumber("1");
+                setMatchType("Qualifiers");
+            };
+            //GetTBAEventMatchData to populate the team number
+            const loadTbaEvent = await loadTbaEventCache();
 
+            if (loadTbaEvent) {
+                for (i = 0; i < JSON.parse(loadTbaEvent).length; i++) {
+                    const data = JSON.parse(loadTbaEvent)[i];
+                    var mt = "Qualifiers";
+                    var mn = 1;                
+                    try{
+                        if (loadMatch) {
+                            mt = loadMatch.matchType;
+                            mn = String(Number(loadMatch.matchNumber) + 1);
+                        }  
+                        
+                        if (data.eventkey == loadedOtherSettings.eventKey
+                        && (mt == "Qualifiers")
+                        && data.complevel == "qm"
+                        && mn == String(data.matchnumber)) {
+
+                        var team = "";
+                        switch(loadedOtherSettings.device) {
+                            case "Blue3":
+                                team = data.blue3.replace("frc","");
+                                break;
+                            case "Blue2":
+                                team =data.blue2.replace("frc","");
+                                break;
+                            case "Blue1":
+                                team = data.blue1.replace("frc","");
+                                break;
+                            case "Red3":
+                                team = data.red3.replace("frc","");
+                                break;
+                            case "Red2":
+                                team = data.red2.replace("frc","");
+                                break;
+                            case "Red1":
+                                team = data.red1.replace("frc","");
+                                break;
+                            default:
+                                team = "";
+                                break;
+                            };
+                            //console.log(team);
+                            setTeamNumber(team);
+                        };
+                    } catch(e) {
+                        console.error(e);
+                    }
+                };
+            } else {
+                setTeamNumber("");
+            };
+
+        };       
+        
         //Load data if a prior scouting match was passed to page. 
         if (route?.params?.matchData) {
             loadSavedData(route.params.matchData);
+        } else {
+            loadOtherSettingsToState();  
         }
 
     }, [])
@@ -207,46 +289,62 @@ const ScoutTeam = ({route, navigation}) => {
             {/* All scouting settings go in the scroll view */}
             <KeyboardAvoidingView style={{flex: 1}} behavior="height">
             <ScrollView keyboardShouldPersistTaps='handled' ref={scrollRef}>
-                <View style={{height: 45*vh, zIndex: 1}}>
+                <View style={{height: 50*vh, zIndex: 1}}>
                     <Text style={styles.sectionHeader}>Pre-Round</Text>
 
                     <View style={{...styles.rowAlignContainer, zIndex: 7}}>
                         {/* ScouterName */}
+                        <Text style={globalTextStyles.labelText}>
+                            Scouter Name:
+                        </Text>
                         <TTTextInput
                             state={scouterName}
                             setState={setScouterName}
                             maxLength={30}
                             placeholder="Scouter Name"
                             placeholderTextColor={`${CS.light1}50`}
-                            
                             style={[
                                 {...globalInputStyles.numberInput, width: "45%", height: "75%"},
                                 globalTextStyles.labelText
                             ]}
                         />
+                    </View>
+
+                    <View style={{...styles.rowAlignContainer, zIndex: 7}}>
+                        <Text style={ globalTextStyles.labelText }>
+                            Device:
+                        </Text>
                         {/* Device */}
                         <TTDropdown 
                             state={device} 
                             setState={setDevice} 
                             items={deviceValues}
                             boxWidth={40*vw}
-                            boxHeight={8*vh}
+                            boxHeight={5*vh}
                             boxStyle={globalInputStyles.dropdownInput}
                             textStyle={globalTextStyles.labelText}
                         />
                     </View>
-                    {/* Match type and number */}
                     <View style={{...styles.rowAlignContainer, zIndex: 6}}>
+                        <Text style={ globalTextStyles.labelText }>
+                            Match Type:
+                        </Text>
+                    {/* Match type */}
                         <TTDropdown 
                             state={matchType} 
                             setState={setMatchType} 
                             items={matchTypeValues}
                             boxWidth={40*vw}
-                            boxHeight={8*vh}
+                            boxHeight={5*vh}
                             boxStyle={globalInputStyles.dropdownInput}
                             textStyle={globalTextStyles.labelText}
                             zIndex={5}
                         />
+                    </View>
+                    <View style={{...styles.rowAlignContainer, zIndex: 5}}>
+                        <Text style={ globalTextStyles.labelText }>
+                            Match Number:
+                        </Text>
                         <TTNumberInput
                             state={matchNumber}
                             setState={setMatchNumber}
@@ -256,7 +354,10 @@ const ScoutTeam = ({route, navigation}) => {
                             style={styles.topNumberInput}
                         />
                     </View>
-                    <View style={{...styles.rowAlignContainer, zIndex: 5}}>
+                    <View style={{...styles.rowAlignContainer, zIndex: 4}}>
+                        <Text style={ globalTextStyles.labelText }>
+                            Team Number:
+                        </Text>
                         {/* Team number */}
                         <TTNumberInput
                             state={teamNumber}
@@ -267,17 +368,22 @@ const ScoutTeam = ({route, navigation}) => {
                             placeholderTextColor={`${CS.light1}50`}
                             style={styles.topNumberInput}
                         />
+                    </View>
+                    {/* <View style={{...styles.rowAlignContainer, zIndex: 5}}>
+                        <Text style={ globalTextStyles.labelText }>
+                            Team Color:
+                        </Text> */}
                         {/* Team Color */}
-                        <TTDropdown 
+                        {/* <TTDropdown 
                             state={teamColor} 
                             setState={setTeamColor} 
                             items={teamColorValues}
                             boxWidth={40*vw}
-                            boxHeight={8*vh}
+                            boxHeight={5*vh}
                             boxStyle={globalInputStyles.dropdownInput}
                             textStyle={globalTextStyles.labelText}
                         />
-                    </View>
+                    </View> */}
                     {/* Rudamentary spacer */}
                     <View style={{marginBottom: 5*vh}}/> 
                 </View>
@@ -568,7 +674,7 @@ const styles = StyleSheet.create({
         ...globalTextStyles.labelText,
         margin: 0,
         width: 45*vw, 
-        height: 8*vh,
+        height: 5*vh,
     },
     rowAlignContainer: {
         ...globalContainerStyles.rowContainer, 
