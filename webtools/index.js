@@ -212,7 +212,7 @@ const downloadDataToXLSX = async () => {
     const fileContents = {};
     for (const stringData of allFileData) {
         const data = deserializeData(stringData);
-        const teamNumber = data[2];
+        const teamNumber = data[26];
         if (fileContents[teamNumber] == null) fileContents[teamNumber] = [data];
         else fileContents[teamNumber].push(data);
     }
@@ -265,7 +265,7 @@ const downloadDataToXLSX = async () => {
             ]))
         ]);
 
-        XLSX.utils.book_append_sheet(workbook, teamSheet, `Team ${team}`);
+        XLSX.utils.book_append_sheet(workbook, teamSheet, `Event`);
     }
 
     XLSX.writeFile(workbook, "CloudData.xlsx");
