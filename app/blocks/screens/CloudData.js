@@ -10,12 +10,14 @@ import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContaine
 import { readStringFromCloud, initializeFirebaseFromSettings, getAllFilesFromCloud, downloadAllFilesFromCloud, uploadMultipleStringsToCloud } from '../../common/CloudStorage';
 import { TTButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTGradient, TTLoading } from '../components/ExtraComponents';
-import { loadCloudCache, loadSettings, saveCloudCache } from '../../common/LocalStorage';
+import { loadCloudCache, loadSettings, saveCloudCache, loadTbaEventCache } from '../../common/LocalStorage';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTDropdown } from '../components/InputComponents';
 
 const sortableValues = ["Team Number", "Total Points","Auto Points", "Teleop Points", "Misses", "Cubes", "Cones", "Docking"];
 const sortableKeys = [null, "total","auto", "teleop", "misses", "cubes", "cones", "docking"];
+const filterKeys = [null];
+const filterValues = ["All"];
 
 // Main function
 const CloudData = ({route, navigation}) => {
@@ -32,7 +34,8 @@ const CloudData = ({route, navigation}) => {
     const [teamOrder, setTeamOrder] = React.useState([]);
 
     // Normal states
-    const [sortBy, setSortBy] = React.useState(sortableValues[0]);
+    const [sortBy, setSortBy] = React.useState(sortableValues[0]);    
+    const [filterBy, setFilterBy] = React.useState(filterValues[0]);
     const [reverseSort, setReverseSort] = React.useState(false);
 
     // Calculates average statistics
@@ -66,30 +69,40 @@ const CloudData = ({route, navigation}) => {
 
             teamAverages[teamNumber] = averages;
         }
+        //console.log(teamAverages);
         return teamAverages;
     }
 
     // Sorts an object by key values of another object
     // Ultra specified to work just for sorting by statistics
     const getSortedObjectOrder = (baseObject, valuesObject, sortKey, reverse) => {
-        const objectKeys = Object.keys(baseObject);
+        console.log("IN SORT OBJECT ORDER");
+       // console.log(baseObject);
+        console.log(sortKey);
+        console.log(valuesObject);
+
+        const objectKeys = Object.keys(valuesObject);
+        //console.log(objectKeys);
         if (sortKey === null) {
             return reverse ? objectKeys.reverse() : objectKeys;
         }
 
         const compareFunction = (a, b) => {
-            return valuesObject[a][sortKey] <= valuesObject[b][sortKey];
+            console.log(valuesObject[a][sortKey]);
+            return valuesObject[a][sortKey] - valuesObject[b][sortKey];
         }
 
         const sortedKeys = objectKeys.sort((a, b) => compareFunction(reverse ? b : a, reverse ? a : b));
+        console.log(sortedKeys);
         return sortedKeys;
     }
 
     const sortMatches = (teamData) => {
+        //Sort matches by matchtype and matchnumber
         const compareFunction = (a, b) => {
             return (
-                Number(a[2]) * 300 + Number(a[1]) >
-                Number(b[2]) * 300 + Number(b[1])
+                Number(a[4]) * 300 + Number(a[3]) -
+                Number(b[4]) * 300 + Number(b[3])
             )
         }
         return teamData.sort(compareFunction);
@@ -108,6 +121,29 @@ const CloudData = ({route, navigation}) => {
                 setCloudData(loadedCache);
                 setTeamOrder(Object.keys(loadedCache));
                 setStatistics(calculateAverages(loadedCache));
+            }
+
+            const loadedTBAEvent = await loadTbaEventCache();
+            console.log(loadedTBAEvent);
+
+            if (loadedTBAEvent !== null) {
+                //const array = {};
+                for (i = 0; i < JSON.parse(loadedTBAEvent).length; i++) {
+                    const loadMatch = JSON.parse(loadedTBAEvent)[i];
+                    console.log(loadMatch);
+                    try{
+                        if (loadMatch) {
+                            mt = loadMatch.complevel;
+                            mn = loadMatch.matchnumber;
+
+                            if (mt = "qm") {
+                               console.log(String(Number(mn))); 
+                            }
+                        }  
+                    } catch(e) {
+                        console.error(e);
+                    }
+                }
             }
         };
         
@@ -211,12 +247,12 @@ const CloudData = ({route, navigation}) => {
                 acceptText={loadingContent[2]}
             />
             
-            <View style={{...globalContainerStyles.centerContainer, flex: 0, height: 20*vh, zIndex: 5}}>
+            <View style={{...globalContainerStyles.centerContainer, flex: 0, height: 28*vh, zIndex: 2}}>
                 <TTGradient/>
                 {/* <Text style={{...globalTextStyles.primaryText, fontSize: 16*fU}}>
                     Youre connected to {getApp().options.projectId}
                 </Text> */}
-                <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 1*vh, zIndex: 4}}>
+                <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 1*vh, zIndex: 5}}>
                     <TTButton
                         text="⟳"
                         buttonStyle={{...globalButtonStyles.primaryButton, width: 7*vh, aspectRatio: 1, margin: 2*vh}}
@@ -234,11 +270,30 @@ const CloudData = ({route, navigation}) => {
                         }} 
                         items={sortableValues}
                         boxWidth={50*vw}
-                        boxHeight={8.1*vh}
+                        boxHeight={5.1*vh}
                         boxStyle={globalInputStyles.dropdownInput}
                         textStyle={globalTextStyles.labelText}
                         overrideStyle={{margin: 10, alignSelf: "center"}}
-                        zIndex={5}
+                        zIndex={8}
+                    />
+                </View>
+                <View style={{flexDirection: "row", justifyContent: "center", marginTop: 1*vh, zIndex: 4}}>
+                    <Text style={globalTextStyles.labelText}>Filter By...</Text>
+                    <TTDropdown 
+                        state={filterBy} 
+                        setState={(value) => {
+                            setFilterBy(value);
+                            const filterKey = filterKeys[filterValues.indexOf(value)];
+                            //const newTeamOrder = getSortedObjectOrder(cloudData, statistics, sortKey, reverseSort);
+                            //setTeamOrder(newTeamOrder);
+                        }} 
+                        items={filterValues}
+                        boxWidth={50*vw}
+                        boxHeight={5.1*vh}
+                        boxStyle={globalInputStyles.dropdownInput}
+                        textStyle={globalTextStyles.labelText}
+                        overrideStyle={{margin: 10, alignSelf: "center"}}
+                        zIndex={7}
                     />
                 </View>
                 <TTSimpleCheckbox 

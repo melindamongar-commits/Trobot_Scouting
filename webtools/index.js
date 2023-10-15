@@ -265,7 +265,7 @@ const downloadDataToXLSX = async () => {
             ]))
         ]);
 
-        XLSX.utils.book_append_sheet(workbook, teamSheet, `Event`);
+        XLSX.utils.book_append_sheet(workbook, teamSheet, `EventScoutData`);
     }
 
     XLSX.writeFile(workbook, "CloudData.xlsx");
