@@ -131,7 +131,7 @@ const PitScout = ({route, navigation}) =>
             <KeyboardAvoidingView style={{flex: 1}} behavior="height">
             <ScrollView keyboardShouldPersistTaps='handled' ref={scrollRef}>
                 <View style={{height: 50*vh, zIndex: 1}}>
-                    <Text style={styles.sectionHeader}>Pre-Round</Text>
+                    <Text style={styles.sectionHeader}>Pit Scout</Text>
 
                     <View style={{...styles.rowAlignContainer, zIndex: 7}}>
                         {/* ScouterName */}
@@ -171,17 +171,9 @@ const PitScout = ({route, navigation}) =>
                 </View>
 
                
-                
-                {/* 
-                
-                ENDGAME 
-                
-                */}
                 <View style={{height: 50*vh}}>
                     <TTGradient/>
-
-                    <Text style={styles.sectionHeader}>Endgame</Text>
-                    
+                  
                     
                     <View style={styles.rowAlignContainer}>
                         <TTTextInput
