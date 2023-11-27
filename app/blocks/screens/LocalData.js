@@ -15,7 +15,7 @@ import { fU, vh, vw } from '../../common/Constants';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTGradient, TTConfirmation, TTLoading, TTWarning, TTAlert } from '../components/ExtraComponents';
 import { initializeFirebaseFromSettings, uploadStringToCloud, getAllFilesFromRef, uploadMultipleStringsToCloud } from '../../common/CloudStorage';
-import { deleteMultipleDataKeys, loadMatchData, removeNonMatchKeys, readData, saveMatchData, readMultipleDataKeys, readMultipleDataKeysString, loadSettings, deleteData } from '../../common/LocalStorage';
+import { deleteMultipleDataKeys, loadMatchData, removeNonMatchKeys, readData, saveMatchData, readMultipleDataKeys, readMultipleDataKeysString, loadSettings, deleteData, loadPitData } from '../../common/LocalStorage';
 import { TTButton, TTCheckbox, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 
@@ -138,8 +138,9 @@ const LocalData = ({route, navigation}) => {
 		setLoadingVisible(true);
 
 		let multiStringData = [];
+		let matchKeys2 = matchKeys.filter((keyName) => {return keyName.slice(0, 3) == "@MD"});
 		try {
-			multiStringData = await readMultipleDataKeys(matchKeys);
+			multiStringData = await readMultipleDataKeys(matchKeys2);
 		} catch (e) {
 			setLoadingVisible(false);
 			setWarningContent([null, `Couldn't get a connection to file system!\n${e}`, null]);
@@ -260,8 +261,13 @@ const LocalData = ({route, navigation}) => {
 								buttonStyle={{...globalButtonStyles.matchKeyButton, width: 80 * vw, marginVertical: 1 * vh}}
 								textStyle={{...globalTextStyles.matchKeyText}}
 								onPress={async () => {
-									const matchData = await loadMatchData(keyName)
-									navigation.navigate("ScoutTeam", {matchData: matchData})
+									if (keyName.slice(0, 3) == "@MD"){
+										const matchData = await loadMatchData(keyName)
+										navigation.navigate("ScoutTeam", {matchData: matchData})
+									} else {
+										const pitData = await loadPitData(keyName)
+										navigation.navigate("PitScout", {pitData: pitData})
+									}
 								}}
 							/>
 							<TTButton

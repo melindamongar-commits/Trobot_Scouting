@@ -85,24 +85,7 @@ const TTCounterInput = (props) => {
         </View>
     );
 }
-const TTCounterInput2 = (props) => {
-    const stateMin = props.stateMin ? props.stateMin : 0;
-    const stateMax = props.stateMax ? props.stateMax : 255;
 
-    const onPress = (increment) => {
-        if (props.state != null && props.setState != null) {
-            let newState = Number(props.state) + increment;
-            newState = Math.min(Math.max(newState, stateMin), stateMax); // Clamp between max and min
-            props.setState(newState.toString());
-        }
-    }
-
-    return (
-            //<TTButton state={props.state} setState={props.setState} onPress={() => onPress(1)} {...props.topButtonProps}/>
-            <TTNumberInput state={props.state} setState={props.setState} stateMin={props.stateMin} stateMax={props.stateMax} {...props.inputProps}/>
-            //<TTButton state={props.state} setState={props.setState} onPress={() => onPress(-1)} {...props.bottomButtonProps}/>
-     );
-}
 const TTDropdown = (props) => {
     // Animation
     const animated = new Animated.Value(0);
@@ -229,4 +212,4 @@ const TTDropdown = (props) => {
 };
 
 // Exports
-export { TTTextInput, TTNumberInput, TTCounterInput, TTCounterInput2, TTDropdown };
+export { TTTextInput, TTNumberInput, TTCounterInput, TTDropdown };

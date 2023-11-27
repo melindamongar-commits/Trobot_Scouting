@@ -12,7 +12,7 @@ import { TTButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTGradient, TTLoading } from '../components/ExtraComponents';
 import { loadCloudCache, loadSettings, saveCloudCache, loadTbaEventCache } from '../../common/LocalStorage';
 import { ColorScheme as CS } from '../../common/ColorScheme';
-import { TTDropdown, TTCounterInput, TTCounterInput2, TTNumberInput } from '../components/InputComponents';
+import { TTDropdown, TTCounterInput, TTNumberInput } from '../components/InputComponents';
 
 const sortableValues = ["Team Number", "Total Points","Auto Points", "Teleop Points", "Misses", "Cubes", "Cones", "Docking"];
 const sortableKeys = [null, "total","auto", "teleop", "misses", "cubes", "cones", "docking"];
@@ -43,9 +43,11 @@ const CloudData = ({route, navigation}) => {
         const teamAverages = {};
         // Loop over every team
         for (const teamNumber of Object.keys(teamData)) {
+            
             const averages = { total: 0, auto: 0, teleop: 0, misses: 0, cubes: 0, cones: 0, docking: 0 };
             const count = teamData[teamNumber].length;
             // For every md (match data), add to the average for each stat
+
             for (const md of teamData[teamNumber]) {
                 // This is horrible
                 averages.total += 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]))
@@ -68,8 +70,9 @@ const CloudData = ({route, navigation}) => {
             averages.docking = Math.round(10*averages.docking / count) / 10;
 
             teamAverages[teamNumber] = averages;
-        }
-        //console.log(teamAverages);
+            }
+        
+            //console.log(teamAverages);
         return teamAverages;
     }
 
@@ -214,6 +217,8 @@ const CloudData = ({route, navigation}) => {
         const storage = getStorage();
         const downloadedData = await downloadAllFilesFromCloud(storage, settings.subpath ? settings.subpath : "");
         await saveCloudCache(downloadedData);
+        //console.log(downloadedData);
+
         setCloudData(downloadedData);
         setTeamOrder(Object.keys(downloadedData));
         setStatistics(calculateAverages(downloadedData));
@@ -318,8 +323,7 @@ const CloudData = ({route, navigation}) => {
                 acceptText={loadingContent[2]}
             />
             
-            <View style={{...globalContainerStyles.centerContainer, flex: 0, height: 45
-            *vh, zIndex: 2}}>
+            <View style={{...globalContainerStyles.centerContainer, flex: 0, height: 30*vh, zIndex: 2}}>
                 <TTGradient/>
                 {/* <Text style={{...globalTextStyles.primaryText, fontSize: 16*fU}}>
                     Youre connected to {getApp().options.projectId}
@@ -359,6 +363,13 @@ const CloudData = ({route, navigation}) => {
                         onPress={() => onPress(+1)} />
                     <TTNumberInput
                         state={filterBy}
+                        setState={(value) => {
+                            setFilterBy(value);
+                            const filterKey = value;
+                            const sortKey = sortableKeys[sortableValues.indexOf(sortBy)];
+                            const newTeamOrder = getSortedObjectOrder(cloudData, statistics, sortKey, reverseSort, filterKey);
+                            setTeamOrder(newTeamOrder);
+                        }} 
                         style={[
                             {...globalInputStyles.numberInput, width: 15*vw, height: 5*vh},
                             globalTextStyles.labelText

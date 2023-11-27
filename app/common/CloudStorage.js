@@ -54,7 +54,9 @@ const uploadMultipleStringsToCloud = async (storage, multiStringData, filepaths)
         await Promise.map(multiStringData, 
             (stringData, i) => {
                 const filepath = filepaths[i];
-                return uploadStringToCloud(storage, stringData, filepath);
+                var removePath = (stringData.substring(stringData.indexOf("file:///"),stringData.indexOf("/Camera/")+8));
+                var finalString = stringData.replaceAll(removePath, "");
+                return uploadStringToCloud(storage, finalString, filepath);
             },
             {concurrency: concurrency}
         );
@@ -99,8 +101,49 @@ const downloadAllFilesFromCloud = async (storage, subpath) => {
     try {
         const filenames = await getAllFilesFromCloud(storage, subpath);
         
+		let filenames2 = filenames.filter((keyName) => {return !keyName.endsWith("Pit.txt")});
+        //console.log(filenames2);
         // Wait for all promises at the same time
-        const promiseData = await Promise.map(filenames, 
+        const promiseData = await Promise.map(filenames2, 
+            (filename) => {
+                return readStringFromCloud(storage, filename);
+            },
+            {concurrency: concurrency} // This might need to be messed with
+        );
+        
+		// Need some way of sorting each match array based on match number so that graphs are easier
+        for (const stringData of promiseData) {
+            const data = deserializeData(stringData);
+            const teamNumber = data[2];
+            // If there's already something there, push the new data, otherwise create an array
+            if (fileContents[teamNumber] == null) fileContents[teamNumber] = [data];
+            else fileContents[teamNumber].push(data);
+        }
+
+    } catch (e) {
+        console.error(`Error getting all files:\n${e}`);
+        return null;
+    }
+
+    return fileContents;
+}
+
+
+// Downloads the data of all the files from the cloud
+const downloadPitFilesFromCloud = async (storage, subpath) => {
+    /*
+    It is arranged in the following structure
+    output = { teamNumber: [matchData1, matchData2] }
+    */
+
+    const fileContents = {};
+    try {
+        const filenames = await getAllFilesFromCloud(storage, subpath);
+        
+		let filenames2 = filenames.filter((keyName) => {return keyName.endsWith("Pit.txt")});
+        
+        // Wait for all promises at the same time
+        const promiseData = await Promise.map(filenames2, 
             (filename) => {
                 return readStringFromCloud(storage, filename);
             },
