@@ -107,7 +107,7 @@ const TeamAnalytics = ({route, navigation}) => {
         return (
             <View key={props.id} style={styles.matchDataContainer}>
                 <Text style={{...globalTextStyles.secondaryText, fontSize: 24*fU, color: CS.dark1}}>
-                    {matchTypeValues[props.matchData[5]]} {props.matchData[4]}  —  {teamColorValues[props.matchData[6]]}
+                    {matchTypeValues[props.matchData[5]]} {props.matchData[4]}  —  {teamColorValues[props.matchData[7]]}
                 </Text>
 
                 {/* Auto subcontainer */}
@@ -156,6 +156,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         <Text style={styles.dataLabel}>Miss-<Text style={styles.dataText}>{props.matchData[23]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[24] == 1 ? "Did" : "Did not"}</Text> parked</Text>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[25] == 1 ? "Did" : "Did not"}</Text> dock</Text>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[26] == 1 ? "Did" : "Did not"}</Text> engage</Text>
                     </View>
@@ -167,7 +168,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         Comment
                     </Text>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>"{props.matchData[27]}"</Text>
+                        <Text style={styles.dataLabel}>"{props.matchData[28]}"</Text>
                     </View>
                 </View>
 
