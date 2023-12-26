@@ -21,39 +21,6 @@ import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContaine
 
 const fileDir = FileSystem.documentDirectory;
 
-// Serializes the data to a string and saves it
-async function saveRandomData() {
-	const matchData = [
-		// Pre Round
-		Math.round(Math.random() * 30),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 2),
-		Math.round(Math.random()),
-
-		// Auto
-		Math.round(Math.random()),
-		Math.round(Math.random()),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-
-		// Teleop
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random()),
-		Math.round(Math.random()),
-
-		// After Round
-		"1246890!@#$%^&*()<>?:",
-	];
-
-	// Save data using hash
-	await saveMatchData(matchData);
-}
-
 // Main function
 const LocalData = ({route, navigation}) => {
 	// FILLS LOCAL DATA WITH A BUNCH OF FAKE DATA FOR TESTING
@@ -151,13 +118,13 @@ const LocalData = ({route, navigation}) => {
 		const status  = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
 		const localFileUri = fileDir + "ScoutingFile.txt";
 
-		var dataString ='ScouterName|Device|TeamNumber|MatchNumber|MatchType|AllianceColor|';
+		var dataString ='DataType|ScouterName|Device|TeamNumber|MatchNumber|MatchType|AllianceColor|';
 		dataString =dataString + 'Mobility|AutoDocked|AutoEngaged|'
 		dataString =dataString + 'AutoCubeHigh|AutoCubeMid|AutoCubeLow|';
 		dataString =dataString + 'AutoConeHigh|AutoConeMid|AutoConeLow|AutoMisses|';
 		dataString =dataString + 'TeleCubeHigh|TeleCubeMid|TeleCubeLow|';		
 		dataString =dataString + 'TeleConeHigh|TeleConeMid|TeleConeLow|TeleMisses|';
-		dataString =dataString + 'EndgameParked|EndgameDocked|EndgameEngaged|Comments\n';
+		dataString =dataString + 'EndgameParked|EndgameDocked|EndgameEngaged|EventKey|Comments\n';
 		var i ;
 		for(i=0; i < multiStringData.length; i++){
 			dataString += `${multiStringData[i]}\n`;
@@ -195,14 +162,6 @@ const LocalData = ({route, navigation}) => {
         loadKeys();
         initializeFirebaseFromSettings();
 		wrapper();
-
-		// Used for testing only, should be removed
-		const UploadFakeRandomData = async () => {
-			for (let i = 0; i < 200; i++) {
-				await saveRandomData();
-			}
-		}
-		// UploadFakeRandomData();
 
     }, []);
 

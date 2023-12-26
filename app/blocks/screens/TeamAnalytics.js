@@ -1,18 +1,15 @@
 // Library Imports
 import * as React from 'react';
-import { getStorage } from 'firebase/storage';
-import { getApp, getApps } from "firebase/app";
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 
 // Component Imports
-import { fU, vh, vw } from '../../common/Constants';
-import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
-import { TTButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { ColorScheme as CS } from '../../common/ColorScheme';
+import { fU, vh, vw } from '../../common/Constants';
+import { globalContainerStyles, globalInputStyles, globalTextStyles } from '../../common/GlobalStyleSheet';
 import { TTGradient } from '../components/ExtraComponents';
-import { matchTypeValues, teamColorValues } from './ScoutTeam';
 import { TTDropdown } from '../components/InputComponents';
+import { matchTypeValues, teamColorValues } from './ScoutTeam';
 
 const chartableValues = ["Auto Points", "Teleop Points", "Cubes", "Cones", "Misses", "Docking"];
 
@@ -25,14 +22,16 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const checkEmptyComments = () => {
         for (const match of route.params.teamData) {
-            if (match[27].length !== 0) return false;
+            console.log(match);
+
+            if (match[28].length !== 0) return false;
         }
         return true;
     }
 
     const checkForDNP = () => {
         for (const match of route.params.teamData) {
-            const comment = match[26].toLowerCase().replace(/’/g, "'");
+            const comment = match[28].toLowerCase().replace(/’/g, "'");
             if (
                 comment.includes("dnp") || 
                 comment.includes("don't pick") || 
@@ -48,45 +47,45 @@ const TeamAnalytics = ({route, navigation}) => {
         switch (section) {
             case ("Total Points"): {
                 const points = route.params.teamData.map((md) => {
-                    return 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]))
-                    + 5*(Number(md[16])+Number(md[19])) + 3*(Number(md[17])+Number(md[20]))+ 2*(Number(md[18])+Number(md[21]))
-                    + 8*Number(md[7]) + 12*Number(md[8]) + 6*Number(md[24]) + 10*Number(md[25]) + 2*Number(md[23]) + 3*Number(md[6]);
+                    return 6*(Number(md[10])+Number(md[13])) + 4*(Number(md[11])+Number(md[14]))+ 3*(Number(md[12])+Number(md[15]))
+                    + 5*(Number(md[17])+Number(md[20])) + 3*(Number(md[18])+Number(md[21]))+ 2*(Number(md[19])+Number(md[22]))
+                    + 8*Number(md[8]) + 12*Number(md[9]) + 6*Number(md[25]) + 10*Number(md[26]) + 2*Number(md[24]) + 3*Number(md[7]);
                 });
                 return points;
             } break;
             case ("Auto Points"): {
                 const points = route.params.teamData.map((md) => {
-                    return 6*(Number(md[9])+Number(md[12])) + 4*(Number(md[10])+Number(md[13]))+ 3*(Number(md[11])+Number(md[14]));
+                    return 6*(Number(md[10])+Number(md[13])) + 4*(Number(md[11])+Number(md[14]))+ 3*(Number(md[12])+Number(md[15]));
                 });
                 return points;
             } break;
             case ("Teleop Points"): {
                 const points = route.params.teamData.map((md) => {
-                    return 5*(Number(md[16])+Number(md[19])) + 3*(Number(md[17])+Number(md[20]))+ 2*(Number(md[18])+Number(md[21]));
+                    return 5*(Number(md[17])+Number(md[20])) + 3*(Number(md[18])+Number(md[21]))+ 2*(Number(md[19])+Number(md[22]));
                 });
                 return points;
             } break;
             case ("Misses"): {
                 const count = route.params.teamData.map((md) => {
-                    return Number(md[15]) + Number(md[22]);
+                    return Number(md[16]) + Number(md[23]);
                 });
                 return count;
             } break;
             case ("Docking"): {
                 const count = route.params.teamData.map((md) => {
-                    return 8*Number(md[7]) + 12*Number(md[8]) + 6*Number(md[24]) + 10*Number(md[25]) + 2*Number(md[23]);
+                    return 8*Number(md[8]) + 12*Number(md[9]) + 6*Number(md[25]) + 10*Number(md[26]) + 2*Number(md[24]);
                 });
                 return count;
             } break;
             case ("Cubes"): {
                 const count = route.params.teamData.map((md) => {
-                    return Number(md[9])+Number(md[10])+Number(md[11]) + Number(md[16])+Number(md[17])+Number(md[18]);
+                    return Number(md[10])+Number(md[11])+Number(md[12]) + Number(md[17])+Number(md[18])+Number(md[19]);
                 });
                 return count;
             } break;
             case ("Cones"): {
                 const count = route.params.teamData.map((md) => {
-                    return Number(md[12])+Number(md[13])+Number(md[14]) + Number(md[19])+Number(md[20])+Number(md[21]);
+                    return Number(md[13])+Number(md[14])+Number(md[15]) + Number(md[20])+Number(md[21])+Number(md[22]);
                 });
                 return count;
             } break;
@@ -95,7 +94,8 @@ const TeamAnalytics = ({route, navigation}) => {
 
     React.useEffect(() => {
         const matchAbbreviations = route.params.teamData.map((item) => {
-            return `${matchTypeValues[item[4]][0]}${item[3]}`;
+            console.log(item);
+            return `${matchTypeValues[item[5]][1]}${item[4]}`;
         });
         setChartLabels(matchAbbreviations);
         
@@ -107,7 +107,7 @@ const TeamAnalytics = ({route, navigation}) => {
         return (
             <View key={props.id} style={styles.matchDataContainer}>
                 <Text style={{...globalTextStyles.secondaryText, fontSize: 24*fU, color: CS.dark1}}>
-                    {matchTypeValues[props.matchData[4]]} {props.matchData[3]}  —  {teamColorValues[props.matchData[5]]}
+                    {matchTypeValues[props.matchData[5]]} {props.matchData[4]}  —  {teamColorValues[props.matchData[6]]}
                 </Text>
 
                 {/* Auto subcontainer */}
@@ -116,23 +116,23 @@ const TeamAnalytics = ({route, navigation}) => {
                         Auto
                     </Text>
 
-                    <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[6] == 1 ? "" : "No"}</Text> Mobility</Text>
+                    <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[7] == 1 ? "" : "No"}</Text> Mobility</Text>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Cube High-<Text style={styles.dataText}>{props.matchData[9]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cube Mid-<Text style={styles.dataText}>{props.matchData[10]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cube Low-<Text style={styles.dataText}>{props.matchData[11]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cube High-<Text style={styles.dataText}>{props.matchData[10]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cube Mid-<Text style={styles.dataText}>{props.matchData[11]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cube Low-<Text style={styles.dataText}>{props.matchData[12]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Cone High-<Text style={styles.dataText}>{props.matchData[12]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cone Mid-<Text style={styles.dataText}>{props.matchData[13]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cone Low-<Text style={styles.dataText}>{props.matchData[14]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cone High-<Text style={styles.dataText}>{props.matchData[13]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cone Mid-<Text style={styles.dataText}>{props.matchData[14]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cone Low-<Text style={styles.dataText}>{props.matchData[15]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Miss-<Text style={styles.dataText}>{props.matchData[15]}</Text></Text>
+                        <Text style={styles.dataLabel}>Miss-<Text style={styles.dataText}>{props.matchData[16]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[7] == 1 ? "Did" : "Did not"}</Text> dock</Text>
-                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[8] == 1 ? "Did" : "Did not"}</Text> engage</Text>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[8] == 1 ? "Did" : "Did not"}</Text> dock</Text>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[9] == 1 ? "Did" : "Did not"}</Text> engage</Text>
                     </View>
                 </View>
 
@@ -143,21 +143,21 @@ const TeamAnalytics = ({route, navigation}) => {
                     </Text>
 
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Cube High-<Text style={styles.dataText}>{props.matchData[16]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cube Mid-<Text style={styles.dataText}>{props.matchData[17]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cube Low-<Text style={styles.dataText}>{props.matchData[18]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cube High-<Text style={styles.dataText}>{props.matchData[17]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cube Mid-<Text style={styles.dataText}>{props.matchData[18]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cube Low-<Text style={styles.dataText}>{props.matchData[19]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Cone High-<Text style={styles.dataText}>{props.matchData[19]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cone Mid-<Text style={styles.dataText}>{props.matchData[20]}</Text></Text>
-                        <Text style={styles.dataLabel}>Cone Low-<Text style={styles.dataText}>{props.matchData[21]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cone High-<Text style={styles.dataText}>{props.matchData[20]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cone Mid-<Text style={styles.dataText}>{props.matchData[21]}</Text></Text>
+                        <Text style={styles.dataLabel}>Cone Low-<Text style={styles.dataText}>{props.matchData[22]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Miss-<Text style={styles.dataText}>{props.matchData[22]}</Text></Text>
+                        <Text style={styles.dataLabel}>Miss-<Text style={styles.dataText}>{props.matchData[23]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[24] == 1 ? "Did" : "Did not"}</Text> dock</Text>
-                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[25] == 1 ? "Did" : "Did not"}</Text> engage</Text>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[25] == 1 ? "Did" : "Did not"}</Text> dock</Text>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[26] == 1 ? "Did" : "Did not"}</Text> engage</Text>
                     </View>
                 </View>
 
@@ -167,7 +167,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         Comment
                     </Text>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>"{props.matchData[26]}"</Text>
+                        <Text style={styles.dataLabel}>"{props.matchData[27]}"</Text>
                     </View>
                 </View>
 
@@ -315,7 +315,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         Comments
                     </Text>
                     {route.params.teamData.map((match, index) => {
-                        const comment = match[26];
+                        const comment = match[28];
                         if (comment.length !== 0) return (
                             <View key={index}>
                                 <Text style={{...globalTextStyles.labelText, margin: 0.5*vh}}>"{comment}"</Text>
@@ -323,7 +323,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         );
                     })}
                     { checkEmptyComments() &&
-                        <Text>Nobody has commented on this team yet.</Text>
+                        <Text style={{fontFamily: "LGC Light", color: CS.light2, fontSize: 16*fU, textAlign: "center", margin: 2*vh}}>Nobody has commented on this team yet.</Text>
                     }
 
                     <View style={{margin: 2*vh}}/>

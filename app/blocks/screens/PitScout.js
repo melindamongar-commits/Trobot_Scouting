@@ -22,7 +22,8 @@ const PitScout = ({route, navigation}) =>
     const [scouterName, setScouterName] = React.useState("");
     const [teamNumber, setTeamNumber] = React.useState("");
     const [comments, setComments] = React.useState("");
-    const [eventKey, setEventKey] = React.useState("");
+    const [eventKey, setEventKey] = React.useState("");    
+    const [dataType, setDataType] = React.useState("Pit");
     const [uploadPhoto, setUploadPhoto] = React.useState(false);
     const [type, setType] = React.useState(CameraType.back);
     const [permission, requestPermission] = Camera.useCameraPermissions();
@@ -42,6 +43,7 @@ const PitScout = ({route, navigation}) =>
     // Serializes the data to a string and saves it
     const saveAndExit = async () => {
         const pitData = [
+            dataType,
             // Pre Round
             formatNameState(scouterName),
             formatNumericState(teamNumber),
@@ -62,17 +64,18 @@ const PitScout = ({route, navigation}) =>
     };
 
     const loadSavedData = (data) => {
+        setDataType(data[0]);
         // Pre Round
         
-        setScouterName(data[0]);
-        setTeamNumber(data[1]);
+        setScouterName(data[1]);
+        setTeamNumber(data[2]);
         
         // After Round
         
-        setEventKey(data[2]);
-        setComments(data[3]);
+        setEventKey(data[3]);
+        setComments(data[4]);
         
-        setPhotos(data[4].split(","));
+        setPhotos(data[5].split(","));
     }
     
 
@@ -166,8 +169,9 @@ const PitScout = ({route, navigation}) =>
                     </TouchableOpacity>
                     </View>
                 </Camera>
+
                 <TTButton 
-                    text="Cancel" 
+                    text="Close" 
                     onPress={() => {setUploadPhoto(false)}}
                     buttonStyle={{...globalButtonStyles.primaryButton, width: "100%", margin: 3*vh}} 
                     textStyle={globalTextStyles.secondaryText}
@@ -288,8 +292,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     tinyLogo: {
-        width: 100,
-        height: 100,
+        width: 200,
+        height: 200,
     },
     camera: {
         flex: 1,
