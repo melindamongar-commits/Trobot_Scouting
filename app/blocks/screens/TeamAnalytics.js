@@ -22,8 +22,6 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const checkEmptyComments = () => {
         for (const match of route.params.teamData) {
-            console.log(match);
-
             if (match[28].length !== 0) return false;
         }
         return true;
@@ -94,7 +92,6 @@ const TeamAnalytics = ({route, navigation}) => {
 
     React.useEffect(() => {
         const matchAbbreviations = route.params.teamData.map((item) => {
-            console.log(item);
             return `${matchTypeValues[item[5]][1]}${item[4]}`;
         });
         setChartLabels(matchAbbreviations);

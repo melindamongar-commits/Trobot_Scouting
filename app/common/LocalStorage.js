@@ -23,7 +23,8 @@ const settingsKey = "@settingsKey";
 const otherSettingsKey = "@OtherSettingsKey";
 const cloudCacheKey = "@cloudCacheKey";
 const tbaEventCacheKey = "@tbaEventCacheKey";
-const matchCacheKey = "@matchCacheKey"
+const matchCacheKey = "@matchCacheKey";
+const pitCacheKey = "@pitCacheKey";
 const delimiter = String.fromCharCode(124);
 
 // Take a list of data and packs it into a string. Only works with lists numbers and strings
@@ -121,7 +122,7 @@ const deleteMultipleDataKeys = async (keys) => {
 
 // Takes a list of values and saves it according to conventions. Returns false if there was an error, returns true otherwise
 const savePitData = async (data) => {
-    const key = `@PD${data[1]}-${data[0]}-Pit`;
+    const key = `@PD${data[2]}-${data[1]}-Pit`;
     const serializedData = serializeData(data);
 
     //console.log(key);
@@ -143,8 +144,8 @@ const loadPitData = async (key) => {
 // Takes a list of values and saves it according to conventions. Returns false if there was an error, returns true otherwise
 const saveMatchData = async (data) => {
     const matchTypeValues = ["Practice", "Qualifiers", "Finals"]; // Probably should be stored elsewhere
-
-    const key = `@MD${data[2]}-${matchTypeValues[data[4]]}-${data[3]}`;
+    console.log(data);
+    const key = `@MD${data[3]}-${matchTypeValues[data[5]]}-${data[4]}`;
     const serializedData = serializeData(data);
     return await writeData(serializedData, key);
 };
@@ -218,6 +219,10 @@ const saveCloudCache = async (cloudData) => {
     const stringData = JSON.stringify(cloudData);
     return await writeData(stringData, cloudCacheKey);
 }
+const savePitCache = async (pitData) => {
+    const stringData = JSON.stringify(pitData);
+    return await writeData(stringData, pitCacheKey);
+}
 
 // Helper function to load cloud cache
 const loadCloudCache = async () => {
@@ -277,6 +282,7 @@ export {
     loadSettings,
     loadOtherSettings,
     saveCloudCache,
+    savePitCache,
     saveTbaEventCache,
     loadTbaEventCache,
     loadCloudCache,

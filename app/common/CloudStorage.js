@@ -7,6 +7,7 @@ import { Promise } from "bluebird";
 // Component imports
 import { loadSettings, delimiter, deserializeData, compressData, decompressData } from './LocalStorage';
 import { concurrency } from './Constants';
+import { UploadTask } from "expo-file-system";
 
 // Initialize from settings
 const initializeFirebaseFromSettings = async () => {
@@ -36,8 +37,10 @@ const uploadStringToCloud = async (storage, stringData, filepath) => {
     // efficient to upload the default string, uncompressed, than it is to compress
     // it first and then upload it.
     // const compressedData = compressData(stringData);
+
     const blobUpload = new Blob([stringData], {type: "text/plain"});
     const storageRef = ref(storage, filepath);
+
     try {
         await uploadBytes(storageRef, blobUpload);
         return true;
@@ -46,6 +49,41 @@ const uploadStringToCloud = async (storage, stringData, filepath) => {
         return null;
     }
 };
+const uploadImage = async (storage, uri, filepath) => {
+    const metadata = {
+        contentType: 'image/jpeg'
+    };
+
+    const blob = uriToBlob(uri);
+    const storageRef = ref(storage, filepath);
+    
+   try{
+        await uploadBytes(storageRef, blob, metadata);
+    }catch(e){
+        console.error(`Error Uploading image: ${e}`);
+    }
+}
+
+
+const uriToBlob = async(uri) => {
+
+    const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          resolve(xhr.response);
+        };
+        xhr.onerror = function (e) {
+          reject(new TypeError("Network request failed"));
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
+    });
+    
+    return blob;
+};
+    
+    
 
 // Uploads multiple strings to the cloud
 const uploadMultipleStringsToCloud = async (storage, multiStringData, filepaths) => {
@@ -54,9 +92,29 @@ const uploadMultipleStringsToCloud = async (storage, multiStringData, filepaths)
         await Promise.map(multiStringData, 
             (stringData, i) => {
                 const filepath = filepaths[i];
-                var removePath = (stringData.substring(stringData.indexOf("file:///"),stringData.indexOf("/Camera/")+8));
-                var finalString = stringData.replaceAll(removePath, "");
-                return uploadStringToCloud(storage, finalString, filepath);
+                
+                if(stringData.startsWith("Pit")){
+
+                    if(stringData.indexOf("file:///") > 0){
+                        var removePath = (stringData.substring(stringData.indexOf("file:///"),stringData.indexOf("/Camera/")+8));
+                        var finalString = stringData.replaceAll(removePath, "");
+
+                        var files = stringData.split("|")[5];
+                    
+                        var fileArray = files.split(",");
+                        for (var j=0; j < fileArray.length; j++)
+                        {
+                            var file = fileArray[j];
+                            var filename = file.replaceAll(removePath, "");
+                            var imagepath = "/" + (filepath.split("/")[1]) +"/Photos/" + filename;
+                            
+                            uploadImage(storage, file.replaceAll("file:///", "file:/"), imagepath);
+                        }
+                        stringData = finalString;
+                    }
+
+                }
+                return uploadStringToCloud(storage, stringData, filepath);
             },
             {concurrency: concurrency}
         );
@@ -114,7 +172,8 @@ const downloadAllFilesFromCloud = async (storage, subpath) => {
 		// Need some way of sorting each match array based on match number so that graphs are easier
         for (const stringData of promiseData) {
             const data = deserializeData(stringData);
-            const teamNumber = data[2];
+            
+            const teamNumber = data[3];
             // If there's already something there, push the new data, otherwise create an array
             if (fileContents[teamNumber] == null) fileContents[teamNumber] = [data];
             else fileContents[teamNumber].push(data);
@@ -174,4 +233,5 @@ export {
     readStringFromCloud, 
     getAllFilesFromCloud,
     downloadAllFilesFromCloud,
+    downloadPitFilesFromCloud
 };

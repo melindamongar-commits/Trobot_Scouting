@@ -74,8 +74,10 @@ const PitScout = ({route, navigation}) =>
         
         setEventKey(data[3]);
         setComments(data[4]);
-        
-        setPhotos(data[5].split(","));
+
+        if (data[5].length > 0) {           
+            setPhotos(data[5].split(","));
+        }
     }
     
 

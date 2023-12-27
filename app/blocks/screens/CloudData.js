@@ -7,10 +7,10 @@ import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 // Component imports
 import { vh, vw, fU } from '../../common/Constants';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
-import { readStringFromCloud, initializeFirebaseFromSettings, getAllFilesFromCloud, downloadAllFilesFromCloud, uploadMultipleStringsToCloud } from '../../common/CloudStorage';
+import { readStringFromCloud, initializeFirebaseFromSettings, getAllFilesFromCloud, downloadAllFilesFromCloud, downloadPitFilesFromCloud, uploadMultipleStringsToCloud } from '../../common/CloudStorage';
 import { TTButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTGradient, TTLoading } from '../components/ExtraComponents';
-import { loadCloudCache, loadSettings, saveCloudCache, loadTbaEventCache } from '../../common/LocalStorage';
+import { loadCloudCache, loadSettings, saveCloudCache, savePitCache, loadTbaEventCache } from '../../common/LocalStorage';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTDropdown, TTCounterInput, TTNumberInput } from '../components/InputComponents';
 
@@ -29,6 +29,7 @@ const CloudData = ({route, navigation}) => {
 
     // Loaded cloud data
     const [cloudData, setCloudData] = React.useState([]);
+    const [pitData, setPitData] = React.useState([]);
     const [statistics, setStatistics] = React.useState([]);
     const [teamOrder, setTeamOrder] = React.useState([]);
 
@@ -217,10 +218,12 @@ const CloudData = ({route, navigation}) => {
 
         const storage = getStorage();
         const downloadedData = await downloadAllFilesFromCloud(storage, settings.subpath ? settings.subpath : "");
+        const downloadedPitData = await downloadPitFilesFromCloud(storage, settings.subpath ? settings.subpath : "");
         await saveCloudCache(downloadedData);
-        //console.log(downloadedData);
+        await savePitCache(downloadedPitData);
 
         setCloudData(downloadedData);
+        setPitData(downloadedPitData);
         setTeamOrder(Object.keys(downloadedData));
         setStatistics(calculateAverages(downloadedData));
  
