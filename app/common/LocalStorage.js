@@ -235,6 +235,17 @@ const loadCloudCache = async () => {
     }
 }
 
+// Helper function to load cloud cache
+const loadPitCache = async () => {
+    const loadedPitCache = await readData(pitCacheKey);
+    try {
+        const parsedData = JSON.parse(loadedPitCache);
+        return parsedData;
+    } catch (e) {
+        return null;
+    }
+}
+
 
 // Helper function to save cloud cache
 const saveTbaEventCache = async (tbaData) => {
@@ -289,5 +300,5 @@ export {
     loadMatchCache,
     saveMatchCache,
     savePitData,
-    loadPitData
+    loadPitCache,
 }

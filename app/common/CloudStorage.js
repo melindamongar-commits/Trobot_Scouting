@@ -160,7 +160,7 @@ const downloadAllFilesFromCloud = async (storage, subpath) => {
         const filenames = await getAllFilesFromCloud(storage, subpath);
         
 		let filenames2 = filenames.filter((keyName) => {return !keyName.endsWith("Pit.txt")});
-        //console.log(filenames2);
+        
         // Wait for all promises at the same time
         const promiseData = await Promise.map(filenames2, 
             (filename) => {

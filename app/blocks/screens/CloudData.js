@@ -10,7 +10,7 @@ import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContaine
 import { readStringFromCloud, initializeFirebaseFromSettings, getAllFilesFromCloud, downloadAllFilesFromCloud, downloadPitFilesFromCloud, uploadMultipleStringsToCloud } from '../../common/CloudStorage';
 import { TTButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTGradient, TTLoading } from '../components/ExtraComponents';
-import { loadCloudCache, loadSettings, saveCloudCache, savePitCache, loadTbaEventCache } from '../../common/LocalStorage';
+import { loadCloudCache, loadPitCache, loadSettings, saveCloudCache, savePitCache, loadTbaEventCache } from '../../common/LocalStorage';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTDropdown, TTCounterInput, TTNumberInput } from '../components/InputComponents';
 
@@ -91,8 +91,6 @@ const CloudData = ({route, navigation}) => {
     {
         const loadedTBAEvent = tbaeventcache;
        
-        //console.log("FilterKey" + filterKey);
-
         var array = [];
 
         if (loadedTBAEvent ) {
@@ -197,10 +195,15 @@ const CloudData = ({route, navigation}) => {
             setSettings(loadedSettings);
 
             const loadedCache = await loadCloudCache();
+            const loadedPitCache = await loadPitCache();
+
             if (loadedCache !== null) {
                 setCloudData(loadedCache);
                 setTeamOrder(Object.keys(loadedCache));
                 setStatistics(calculateAverages(loadedCache));
+            }
+            if (loadedPitCache !== null) {
+                setPitData(loadedPitCache);
             }
 
             const loadedTBAEvent = await loadTbaEventCache();
@@ -250,7 +253,8 @@ const CloudData = ({route, navigation}) => {
                                     {
                                         teamNumber: props.teamNumber, 
                                         teamStatistics: statistics[props.teamNumber],
-                                        teamData: sortMatches(cloudData[props.teamNumber]),
+                                        teamData: Object.keys(cloudData).includes(props.teamNumber)? sortMatches(cloudData[props.teamNumber]):[],
+                                        pitData: Object.keys(pitData).includes(props.teamNumber)? pitData[props.teamNumber]:[],
                                     })
                             }
                         }

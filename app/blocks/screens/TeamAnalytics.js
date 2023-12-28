@@ -24,12 +24,24 @@ const TeamAnalytics = ({route, navigation}) => {
         for (const match of route.params.teamData) {
             if (match[28].length !== 0) return false;
         }
+        for (const pit of route.params.pitData) {
+            if (pit[4].length !==0)return false;
+        }
         return true;
     }
 
     const checkForDNP = () => {
         for (const match of route.params.teamData) {
             const comment = match[28].toLowerCase().replace(/’/g, "'");
+            if (
+                comment.includes("dnp") || 
+                comment.includes("don't pick") || 
+                comment.includes("dont pick") || 
+                comment.includes("do not pick")
+            ) return true;
+        }
+        for (const pit of route.params.pitData) {
+            const comment = pit[4].toLowerCase().replace(/’/g, "'");
             if (
                 comment.includes("dnp") || 
                 comment.includes("don't pick") || 
@@ -171,6 +183,42 @@ const TeamAnalytics = ({route, navigation}) => {
 
             </View>
         );
+    }
+    // Individual pit data component
+    const PitDataBox = (props) => {
+
+    if (props.pitData && props.pitData.length > 0)
+    {
+        return (
+            <View key={props.id} style={styles.matchDataContainer}>
+                <Text style={{...globalTextStyles.secondaryText, fontSize: 24*fU, color: CS.dark1}}>
+                    {props.pitData[1]} {props.pitData[2]} 
+                </Text>
+
+                {/* Comment Subcontainer */}
+                <View style={styles.matchDataSubcontainer}>
+                    <Text style={{...globalTextStyles.secondaryText, fontSize: 20*fU, color: CS.dark1}}>
+                        Comments
+                    </Text>
+                    <View style={styles.rowAlignContainer}>
+                        <Text style={styles.dataLabel}>"{props.pitData[4]}"</Text>
+                    </View>
+                </View>
+
+                {/* Image subcontainer */}
+                <View style={styles.matchDataSubcontainer}>
+                    <Text style={{...globalTextStyles.secondaryText, fontSize: 20*fU, color: CS.dark1}}>
+                        Images
+                    </Text>
+
+                    <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.pitData[5]}</Text></Text>
+                </View>
+
+            </View>
+        );
+        } else {
+            return;
+        }
     }
 
     const PerformanceChart = (data, labels) => {
@@ -320,6 +368,14 @@ const TeamAnalytics = ({route, navigation}) => {
                             </View>
                         );
                     })}
+                    {route.params.pitData.map((pit, index) => {
+                        const comment = pit[4];
+                        if (comment.length !== 0) return (
+                            <View key={index}>
+                                <Text style={{...globalTextStyles.labelText, margin: 0.5*vh}}>"{comment}"</Text>
+                            </View>
+                        );
+                    })}
                     { checkEmptyComments() &&
                         <Text style={{fontFamily: "LGC Light", color: CS.light2, fontSize: 16*fU, textAlign: "center", margin: 2*vh}}>Nobody has commented on this team yet.</Text>
                     }
@@ -333,9 +389,17 @@ const TeamAnalytics = ({route, navigation}) => {
                     <View style={{margin: 1*vh}}/>
 
                     <Text style={styles.sectionTitle}>
-                        Individual Matches
+                        Pit Scouting
                     </Text>
 
+                    {route.params.pitData.map((pit, index) => {
+                        return <PitDataBox key={index} id={index} pitData={pit}/>
+                    })}
+                    
+
+                    <Text style={styles.sectionTitle}>
+                        Individual Matches
+                    </Text>
                     {route.params.teamData.map((match, index) => {
                         return <MatchDataBox key={index} id={index} matchData={match}/>
                     })}
