@@ -19,6 +19,8 @@ const TeamAnalytics = ({route, navigation}) => {
     const [chartValue, setChartValue] = React.useState("Teleop Points");
     const [chartData, setChartData] = React.useState([]);
     const [chartLabels, setChartLabels] = React.useState([]);
+    const [firebaseURL,setFirebaseURL] = React.useState("");
+    const [subpath,setSubpath] = React.useState("");
 
     const checkEmptyComments = () => {
         for (const match of route.params.teamData) {
@@ -30,21 +32,11 @@ const TeamAnalytics = ({route, navigation}) => {
         return true;
     }
 
-    const getImage = (imageName) => {
-        console.log(imageName);
-
-        console.log(route.params.settings);
-
-        const subpath = route.params.settings.subpath +"%2FPhotos%2F";
-        console.log(subpath );
-        const filepath = subpath + imageName;
-
-        const uri = "https://firebasestorage.googleapis.com/v0/b/tigerscout-49962.appspot.com/o/" + subpath  + imageName + "?alt=media";
+    const getImage = (imageName, firebaseURL, subpath) => {
+        const uri = "https://firebasestorage.googleapis.com/v0/b/"+firebaseURL+"/o/" + subpath +"%2FPhotos%2F" + imageName + "?alt=media";
         console.log(uri);
 
         return uri;
-
-        
     }
 
     const checkForDNP = () => {
@@ -126,6 +118,8 @@ const TeamAnalytics = ({route, navigation}) => {
         setChartLabels(matchAbbreviations);        
         setChartData(getSpecificData("Teleop Points"));
 
+        setSubpath(route.params.settings.subpath);
+        setFirebaseURL(route.params.settings.cloudConfig.storageBucket);
     }, [])
 
     // Individual match data component
@@ -204,7 +198,7 @@ const TeamAnalytics = ({route, navigation}) => {
     // Individual pit data component
 
     const PitDataBox = (props) => {
-
+    
     if (props.pitData && props.pitData.length > 0)
     {
 
@@ -231,13 +225,14 @@ const TeamAnalytics = ({route, navigation}) => {
                     </Text>
 
 
-            { props.pitData[5].split(",").map((imageName) => {
+            { props.pitData[5].split(",").map((imageName, imageindex) => {
                 return (
-                    <View style={styles.rowAlignContainer}>
+
+                    <View key={imageindex} style={styles.rowAlignContainer}>
                     <Text style={styles.dataText}></Text>
                     <Image
                         style={{width: 200, height: 250}}
-                        source={{uri:getImage(imageName)}}
+                        source={{uri:getImage(imageName, firebaseURL, subpath)}}
                     />
                     
                     <Text style={styles.dataText}></Text>
@@ -400,10 +395,10 @@ const TeamAnalytics = ({route, navigation}) => {
                             </View>
                         );
                     })}
-                    {route.params.pitData.map((pit, index) => {
+                    {route.params.pitData.map((pit, pitindex) => {
                         const comment = pit[4];
                         if (comment.length !== 0) return (
-                            <View key={index}>
+                            <View key={pitindex}>
                                 <Text style={{...globalTextStyles.labelText, margin: 0.5*vh}}>"{comment}"</Text>
                             </View>
                         );
@@ -423,7 +418,7 @@ const TeamAnalytics = ({route, navigation}) => {
                     {route.params.pitData.length > 0 && <Text style={styles.sectionTitle}>Pit Scouting</Text>}
 
                     {route.params.pitData.map((pit, index) => {
-                          return <PitDataBox key={index} id={index} pitData={pit}/>
+                        return <PitDataBox key={index} id={index} pitData={pit}/>
                     })}
                     
 
