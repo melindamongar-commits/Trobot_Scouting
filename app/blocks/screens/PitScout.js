@@ -1,31 +1,38 @@
 // Library imports
 import * as React from 'react';
-import { StyleSheet, Text, View, Image, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, Modal,KeyboardAvoidingView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Camera, CameraType, PermissionStatus } from 'expo-camera';
 
+import { BarCodeScanner } from 'expo-barcode-scanner';
 // Component imports
 import { fU, vh, vw } from '../../common/Constants';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 import { TTButton, TTCheckbox, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTCounterInput, TTDropdown, TTNumberInput, TTTextInput } from '../components/InputComponents';
-import { serializeData, deserializeData, compressData, decompressData, saveMatchData, loadMatchData,loadOtherSettings, loadTbaEventCache, loadMatchCache, saveMatchCache} from '../../common/LocalStorage'
+import { serializeData, deserializeData, compressData, decompressData, savePitData, loadPitData,loadOtherSettings} from '../../common/LocalStorage'
 import { TTGradient } from '../components/ExtraComponents';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 
 // Main function
-const PitScout = ({route, navigation}) => 
+const PitScout = ({route, navigation}) =>
 {
     // Might be good to make some of these into arrays
     
     const [scouterName, setScouterName] = React.useState("");
-    
-
     const [teamNumber, setTeamNumber] = React.useState("");
-    
     const [comments, setComments] = React.useState("");
-    const [eventKey, setEventKey] = React.useState("");
+    const [eventKey, setEventKey] = React.useState("");    
+    const [dataType, setDataType] = React.useState("Pit");
+    const [uploadPhoto, setUploadPhoto] = React.useState(false);
+    const [type, setType] = React.useState(CameraType.back);
+    const [permission, requestPermission] = Camera.useCameraPermissions();
+    const [photos, setPhotos] = React.useState([]);
+    const [photoIndex, setPhotoIndex] = React.useState(0);
 
-
+    function toggleCameraType() {
+        setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
+    }
     // Prevents nothing entries
     const formatNumericState = (state) => {
         return ((state != "") ? Number(state) : 0);
@@ -36,16 +43,16 @@ const PitScout = ({route, navigation}) =>
     // Serializes the data to a string and saves it
     const saveAndExit = async () => {
         const pitData = [
+            dataType,
             // Pre Round
             formatNameState(scouterName),
-           
-            formatNumericState(teamNumber), 
+            formatNumericState(teamNumber),
 
             // After Round
             eventKey,
             comments,
+            photos,
         ];
-
 
         // Save data using hash
         try {
@@ -57,16 +64,20 @@ const PitScout = ({route, navigation}) =>
     };
 
     const loadSavedData = (data) => {
+        setDataType(data[0]);
         // Pre Round
         
-        setScouterName(data[0]);
-               setTeamNumber(data[1]);
+        setScouterName(data[1]);
+        setTeamNumber(data[2]);
         
-
         // After Round
         
-        setEventKey(data[2]);
-        setComments(data[3]);
+        setEventKey(data[3]);
+        setComments(data[4]);
+
+        if (data[5].length > 0) {           
+            setPhotos(data[5].split(","));
+        }
     }
     
 
@@ -79,12 +90,16 @@ const PitScout = ({route, navigation}) =>
                 setEventKey(loadedOtherSettings.eventKey);
             };
 
-            //GetTBAEventMatchData to populate the team number
-            const loadTbaEvent = await loadTbaEventCache();
-
             setTeamNumber("");   
+            setUploadPhoto(false);
 
-        };       
+            const getCameraPermissions = async () => {
+                const { status } = await Camera.requestCameraPermissionsAsync();
+                requestPermission(status === PermissionStatus.GRANTED);
+            };
+            getCameraPermissions();
+
+        };
         
         //Load data if a prior scouting match was passed to page. 
         if (route?.params?.pitData) {
@@ -93,45 +108,83 @@ const PitScout = ({route, navigation}) =>
             loadOtherSettingsToState();  
         }
 
-    }, [])
+    }, []);
 
     const scrollRef = React.useRef(null);
+    const ref = React.useRef(null);
 
-    // Ugly but necessary
-    const counterSettings = {
-        stateMin: 0,
-        stateMax: 99,
-        overallStyle: {justifySelf: "center", marginTop: 7*vh},
-        topButtonProps: {text: "+", buttonStyle: [globalButtonStyles.topCounterButton, {height: 8.5*vh, padding: 0}], textStyle: globalTextStyles.primaryText},
-        inputProps: {style: [globalInputStyles.numberInput, globalTextStyles.labelText, {width: "80%", height: "25%", margin: 0}]},
-        bottomButtonProps: {text: "-", buttonStyle: [globalButtonStyles.bottomCounterButton, {height: 8.5*vh, padding: 0}], textStyle: globalTextStyles.primaryText}
+    const handlePhoto = async () => {
+        const photo = await ref.current.takePictureAsync();
+
+        console.log(photo.uri);
+        const photopath = photo.uri;
+
+        setPhotos([
+            ...photos,
+            photopath
+          ]);
+        setPhotoIndex(photos.length);
     }
-    const cubeCounterSettings = {
-        stateMin: 0,
-        stateMax: 99,
-        overallStyle: {justifySelf: "center", marginTop: 7*vh},
-        topButtonProps: {text: "+", buttonStyle: [{...globalButtonStyles.topCounterButton, backgroundColor: CS.cube}, {height: 8.5*vh, padding: 0}], textStyle: globalTextStyles.primaryText},
-        inputProps: {style: [globalInputStyles.numberInput, globalTextStyles.labelText, {width: "80%", height: "25%", margin: 0}]},
-        bottomButtonProps: {text: "-", buttonStyle: [{...globalButtonStyles.bottomCounterButton, backgroundColor: CS.cube}, {height: 8.5*vh, padding: 0}], textStyle: globalTextStyles.primaryText}
+    
+    if (!permission){
+        return (
+            <View style={globalContainerStyles.centerContainer}>
+                <TTGradient/>
+                <Text style={globalTextStyles.labelText}>Requesting for camera permission...</Text>
+            </View>
+        );
     }
-    const coneCounterSettings = {
-        stateMin: 0,
-        stateMax: 99,
-        overallStyle: {justifySelf: "center", marginTop: 7*vh},
-        topButtonProps: {text: "+", buttonStyle: [{...globalButtonStyles.topCounterButton, backgroundColor: CS.cone}, {height: 8.5*vh, padding: 0}], textStyle: globalTextStyles.primaryText},
-        inputProps: {style: [globalInputStyles.numberInput, globalTextStyles.labelText, {width: "80%", height: "25%", margin: 0}]},
-        bottomButtonProps: {text: "-", buttonStyle: [{...globalButtonStyles.bottomCounterButton, backgroundColor: CS.cone}, {height: 8.5*vh, padding: 0}], textStyle: globalTextStyles.primaryText}
+
+    if (!permission.granted) {
+        return (
+            <View style={globalContainerStyles.centerContainer}>
+                <TTGradient/>
+                <Text style={{...globalTextStyles.secondaryText, fontSize: 30, marginHorizontal: 3*vh}}>
+                    TrobotScout doesn't have access to your camera!
+                </Text>
+                <Text style={{...globalTextStyles.labelText, color: `${CS.light1}80`, margin: 3*vh}}>
+                    You need to enable camera permissions in your phone's settings.
+                </Text>
+            </View>
+        );
     }
+
+
 
     return (
         <View style={globalContainerStyles.topContainer}>
         <TTGradient/>
 
+        <Modal
+            animationType="slide"
+            transparent={false}
+            visible={uploadPhoto}
+            onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+                setUploadPhoto(false);
+            }}>
+            <View style={{flex: 1, flexDirection: "column", alignContent: "center", justifyContent: "space-around", padding: 3*vh}}>
+                <Camera style={styles.camera} type={type} ref={ref}>
+                    <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.button} onPress={handlePhoto}>
+                        <Text style={styles.text}>Take Photo</Text>
+                    </TouchableOpacity>
+                    </View>
+                </Camera>
+
+                <TTButton 
+                    text="Close" 
+                    onPress={() => {setUploadPhoto(false)}}
+                    buttonStyle={{...globalButtonStyles.primaryButton, width: "100%", margin: 3*vh}} 
+                    textStyle={globalTextStyles.secondaryText}
+                />
+            </View>
+            </Modal>
             {/* All scouting settings go in the scroll view */}
             <KeyboardAvoidingView style={{flex: 1}} behavior="height">
             <ScrollView keyboardShouldPersistTaps='handled' ref={scrollRef}>
-                <View style={{height: 50*vh, zIndex: 1}}>
-                    <Text style={styles.sectionHeader}>Pre-Round</Text>
+                <View style={{height: 30*vh, zIndex: 1}}>
+                    <Text style={styles.sectionHeader}>Pit Scout</Text>
 
                     <View style={{...styles.rowAlignContainer, zIndex: 7}}>
                         {/* ScouterName */}
@@ -145,13 +198,12 @@ const PitScout = ({route, navigation}) =>
                             placeholder="Scouter Name"
                             placeholderTextColor={`${CS.light1}50`}
                             style={[
-                                {...globalInputStyles.numberInput, width: "45%", height: "75%"},
+                                {...globalInputStyles.numberInput, width: 45*vw, height: 5*vh},
                                 globalTextStyles.labelText
                             ]}
                         />
                     </View>
 
- 
                     <View style={{...styles.rowAlignContainer, zIndex: 4}}>
                         <Text style={ globalTextStyles.labelText }>
                             Team Number:
@@ -170,27 +222,44 @@ const PitScout = ({route, navigation}) =>
                     <View style={{marginBottom: 5*vh}}/> 
                 </View>
 
-               
-                
-                {/* 
-                
-                ENDGAME 
-                
-                */}
-                <View style={{height: 50*vh}}>
+                <View style={{height: 75*vh}}>
                     <TTGradient/>
-
-                    <Text style={styles.sectionHeader}>Endgame</Text>
-                    
-                    
+                    <View style={styles.rowAlignContainer}>
+                    <TTButton
+                        text="Upload Photo"
+                        buttonStyle={{...globalButtonStyles.primaryButton, width: "90%", margin: 5*vh}}
+                        textStyle={{...globalTextStyles.primaryText, fontSize: 36*fU}}
+                        onPress={() => setUploadPhoto(true)}
+                    />
+                    </View>
+                    <View style={styles.rowAlignContainer}>
+                    <Image
+                        style={styles.tinyLogo}
+                        source={{uri: photos[photoIndex]}}
+                    />
+                    </View>
+                    <View style={styles.rowAlignContainer}>
+                    <TTButton 
+                        text=" < " 
+                        onPress={() => {setPhotoIndex(photoIndex - 1);}}
+                        buttonStyle={{...globalButtonStyles.secondaryButton, width: "25", margin: 3*vh}} 
+                        textStyle={globalTextStyles.secondaryText}
+                    />
+                    <TTButton 
+                        text=" > " 
+                        onPress={() => {setPhotoIndex(photoIndex + 1);}}
+                        buttonStyle={{...globalButtonStyles.secondaryButton, width: "20", margin: 3*vh}} 
+                        textStyle={globalTextStyles.secondaryText}
+                    />
+                    </View>
                     <View style={styles.rowAlignContainer}>
                         <TTTextInput
                             state={comments}
                             setState={setComments}
-                            placeholder="Comments (50 characters)"
+                            placeholder="Comments (1000 characters)"
                             placeholderTextColor={`${CS.light1}50`}
                             multiline={true}
-                            maxLength={50}
+                            maxLength={1000}
                             numberOfLines={4}
                             onFocus={() => {scrollRef.current.scrollToEnd()}}
                             style={[
@@ -217,10 +286,36 @@ const PitScout = ({route, navigation}) =>
             </KeyboardAvoidingView>
         </View>
     );
-}
+    }
 
-// !! TODO !! REPLACE ALL MASSIVE INLINE STYLES WITH A STYLESHEET
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    tinyLogo: {
+        width: 200,
+        height: 200,
+    },
+    camera: {
+        flex: 1,
+    },
+    buttonContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: 'transparent',
+        margin: 64,
+    },
+    button: {
+        flex: 1,
+        alignSelf: 'flex-end',
+        alignItems: 'center',
+    },
+    text: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: 'white',
+    },
     sectionHeader: {
         ...globalTextStyles.primaryText, 
         fontSize: 24*fU, 

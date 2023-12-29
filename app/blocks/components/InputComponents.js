@@ -69,9 +69,9 @@ const TTCounterInput = (props) => {
     const stateMin = props.stateMin ? props.stateMin : 0;
     const stateMax = props.stateMax ? props.stateMax : 255;
 
-    const onPress = (incriment) => {
+    const onPress = (increment) => {
         if (props.state != null && props.setState != null) {
-            let newState = Number(props.state) + incriment;
+            let newState = Number(props.state) + increment;
             newState = Math.min(Math.max(newState, stateMin), stateMax); // Clamp between max and min
             props.setState(newState.toString());
         }

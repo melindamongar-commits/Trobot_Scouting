@@ -15,44 +15,11 @@ import { fU, vh, vw } from '../../common/Constants';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTGradient, TTConfirmation, TTLoading, TTWarning, TTAlert } from '../components/ExtraComponents';
 import { initializeFirebaseFromSettings, uploadStringToCloud, getAllFilesFromRef, uploadMultipleStringsToCloud } from '../../common/CloudStorage';
-import { deleteMultipleDataKeys, loadMatchData, removeNonMatchKeys, readData, saveMatchData, readMultipleDataKeys, readMultipleDataKeysString, loadSettings, deleteData } from '../../common/LocalStorage';
+import { deleteMultipleDataKeys, loadMatchData, removeNonMatchKeys, readData, saveMatchData, readMultipleDataKeys, readMultipleDataKeysString, loadSettings, deleteData, loadPitData } from '../../common/LocalStorage';
 import { TTButton, TTCheckbox, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 
 const fileDir = FileSystem.documentDirectory;
-
-// Serializes the data to a string and saves it
-async function saveRandomData() {
-	const matchData = [
-		// Pre Round
-		Math.round(Math.random() * 30),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 2),
-		Math.round(Math.random()),
-
-		// Auto
-		Math.round(Math.random()),
-		Math.round(Math.random()),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-
-		// Teleop
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random() * 3),
-		Math.round(Math.random()),
-		Math.round(Math.random()),
-
-		// After Round
-		"1246890!@#$%^&*()<>?:",
-	];
-
-	// Save data using hash
-	await saveMatchData(matchData);
-}
 
 // Main function
 const LocalData = ({route, navigation}) => {
@@ -138,8 +105,9 @@ const LocalData = ({route, navigation}) => {
 		setLoadingVisible(true);
 
 		let multiStringData = [];
+		let matchKeys2 = matchKeys.filter((keyName) => {return keyName.slice(0, 3) == "@MD"});
 		try {
-			multiStringData = await readMultipleDataKeys(matchKeys);
+			multiStringData = await readMultipleDataKeys(matchKeys2);
 		} catch (e) {
 			setLoadingVisible(false);
 			setWarningContent([null, `Couldn't get a connection to file system!\n${e}`, null]);
@@ -150,13 +118,13 @@ const LocalData = ({route, navigation}) => {
 		const status  = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
 		const localFileUri = fileDir + "ScoutingFile.txt";
 
-		var dataString ='ScouterName|Device|TeamNumber|MatchNumber|MatchType|AllianceColor|';
+		var dataString ='DataType|ScouterName|Device|TeamNumber|MatchNumber|MatchType|AllianceColor|';
 		dataString =dataString + 'Mobility|AutoDocked|AutoEngaged|'
 		dataString =dataString + 'AutoCubeHigh|AutoCubeMid|AutoCubeLow|';
 		dataString =dataString + 'AutoConeHigh|AutoConeMid|AutoConeLow|AutoMisses|';
 		dataString =dataString + 'TeleCubeHigh|TeleCubeMid|TeleCubeLow|';		
 		dataString =dataString + 'TeleConeHigh|TeleConeMid|TeleConeLow|TeleMisses|';
-		dataString =dataString + 'EndgameParked|EndgameDocked|EndgameEngaged|Comments\n';
+		dataString =dataString + 'EndgameParked|EndgameDocked|EndgameEngaged|EventKey|Comments\n';
 		var i ;
 		for(i=0; i < multiStringData.length; i++){
 			dataString += `${multiStringData[i]}\n`;
@@ -194,14 +162,6 @@ const LocalData = ({route, navigation}) => {
         loadKeys();
         initializeFirebaseFromSettings();
 		wrapper();
-
-		// Used for testing only, should be removed
-		const UploadFakeRandomData = async () => {
-			for (let i = 0; i < 200; i++) {
-				await saveRandomData();
-			}
-		}
-		// UploadFakeRandomData();
 
     }, []);
 
@@ -260,8 +220,13 @@ const LocalData = ({route, navigation}) => {
 								buttonStyle={{...globalButtonStyles.matchKeyButton, width: 80 * vw, marginVertical: 1 * vh}}
 								textStyle={{...globalTextStyles.matchKeyText}}
 								onPress={async () => {
-									const matchData = await loadMatchData(keyName)
-									navigation.navigate("ScoutTeam", {matchData: matchData})
+									if (keyName.slice(0, 3) == "@MD"){
+										const matchData = await loadMatchData(keyName)
+										navigation.navigate("ScoutTeam", {matchData: matchData})
+									} else {
+										const pitData = await loadPitData(keyName)
+										navigation.navigate("PitScout", {pitData: pitData})
+									}
 								}}
 							/>
 							<TTButton

@@ -22,7 +22,7 @@ const ScoutTeam = ({route, navigation}) => {
     
     const [scouterName, setScouterName] = React.useState("");
     const [device, setDevice] = React.useState("Device");
-
+    const [dataType, setDataType] = React.useState("Match");
     const [teamNumber, setTeamNumber] = React.useState("");
     const [matchNumber, setMatchNumber] = React.useState("");
     const [matchType, setMatchType] = React.useState("Match Type");
@@ -71,40 +71,41 @@ const ScoutTeam = ({route, navigation}) => {
     const saveAndExit = async () => {
         const matchData = [
             // Pre Round
-            formatNameState(scouterName),
-            device != "Device" ? deviceValues.indexOf(device) : 0, 
-            formatNumericState(teamNumber), 
-            formatNumericState(matchNumber),
-            matchType != "Match Type" ? matchTypeValues.indexOf(matchType) : 1, 
-            teamColor != "Team Color" ? (device.includes("Blue")?"Blue":"Red") : 0, 
+            dataType, //0
+            formatNameState(scouterName),//1
+            device != "Device" ? deviceValues.indexOf(device) : 0, //2
+            formatNumericState(teamNumber), //3
+            formatNumericState(matchNumber), //4
+            matchType != "Match Type" ? matchTypeValues.indexOf(matchType) : 1, //5
+            teamColor != "Team Color" ? (device.includes("Blue")?"Blue":"Red") : 0, //6
 
             // Auto
-            taxi ? 1 : 0,
-            autoDocked ? 1 : 0,
-            autoEngaged ? 1 : 0,
-            formatNumericState(autoPoints.cubeHigh),
-            formatNumericState(autoPoints.cubeMid),
-            formatNumericState(autoPoints.cubeLow),
-            formatNumericState(autoPoints.coneHigh),
-            formatNumericState(autoPoints.coneMid),
-            formatNumericState(autoPoints.coneLow),
-            formatNumericState(autoPoints.misses),
+            taxi ? 1 : 0, //7
+            autoDocked ? 1 : 0, //8
+            autoEngaged ? 1 : 0, //9
+            formatNumericState(autoPoints.cubeHigh), //10
+            formatNumericState(autoPoints.cubeMid), //11
+            formatNumericState(autoPoints.cubeLow), //12
+            formatNumericState(autoPoints.coneHigh), //13
+            formatNumericState(autoPoints.coneMid), //14
+            formatNumericState(autoPoints.coneLow), //15
+            formatNumericState(autoPoints.misses), //16
 
             // Teleop
-            formatNumericState(telePoints.cubeHigh),
-            formatNumericState(telePoints.cubeMid),
-            formatNumericState(telePoints.cubeLow),
-            formatNumericState(telePoints.coneHigh),
-            formatNumericState(telePoints.coneMid),
-            formatNumericState(telePoints.coneLow),
-            formatNumericState(telePoints.misses),
-            teleParked ? 1 : 0,
-            teleDocked ? 1 : 0,
-            teleEngaged ? 1 : 0,
+            formatNumericState(telePoints.cubeHigh), //17
+            formatNumericState(telePoints.cubeMid), //18
+            formatNumericState(telePoints.cubeLow), //19
+            formatNumericState(telePoints.coneHigh), //20
+            formatNumericState(telePoints.coneMid), //21
+            formatNumericState(telePoints.coneLow), //22
+            formatNumericState(telePoints.misses), //23
+            teleParked ? 1 : 0, //24
+            teleDocked ? 1 : 0, //25
+            teleEngaged ? 1 : 0, //26
 
             // After Round
-            eventKey,
-            comments,
+            eventKey, //27
+            comments, //28
         ];
 
         const matchCache = {
@@ -125,41 +126,41 @@ const ScoutTeam = ({route, navigation}) => {
 
     const loadSavedData = (data) => {
         // Pre Round
-        
-        setScouterName(data[0]);
-        setDevice(deviceValues[data[1]]);
-        setTeamNumber(data[2]);
-        setMatchNumber(data[3]);
-        setMatchType(matchTypeValues[data[4]]);
-        setTeamColor(teamColorValues[data[5]]);
+        setDataType(data[0]);
+        setScouterName(data[1]);
+        setDevice(deviceValues[data[2]]);
+        setTeamNumber(data[3]);
+        setMatchNumber(data[4]);
+        setMatchType(matchTypeValues[data[5]]);
+        setTeamColor(teamColorValues[data[6]]);
 
         // Auto
-        setTaxi(Number(data[6]) ? true : false);
-        setAutoDocked(Number(data[7]) ? true : false);
-        setAutoEngaged(Number(data[8]) ? true : false);
+        setTaxi(Number(data[7]) ? true : false);
+        setAutoDocked(Number(data[8]) ? true : false);
+        setAutoEngaged(Number(data[9]) ? true : false);
         const autoPoints = {
-            cubeHigh: data[9], cubeMid: data[10], cubeLow: data[11],
-            coneHigh: data[12], coneMid: data[13], coneLow: data[14],
-            misses: data[15],
+            cubeHigh: data[10], cubeMid: data[11], cubeLow: data[12],
+            coneHigh: data[13], coneMid: data[14], coneLow: data[15],
+            misses: data[16],
         }
         setAutoPoints(autoPoints);
 
         // Teleop
         const telePoints = {
-            cubeHigh: data[16], cubeMid: data[17], cubeLow: data[18],
-            coneHigh: data[19], coneMid: data[20], coneLow: data[21],
-            misses: data[22],
+            cubeHigh: data[17], cubeMid: data[18], cubeLow: data[19],
+            coneHigh: data[20], coneMid: data[21], coneLow: data[22],
+            misses: data[23],
         }
         setTelePoints(telePoints);
         
-        setTeleParked(Number(data[23]) ? true : false);
-        setTeleDocked(Number(data[24]) ? true : false);
-        setTeleEngaged(Number(data[25]) ? true : false);
+        setTeleParked(Number(data[24]) ? true : false);
+        setTeleDocked(Number(data[25]) ? true : false);
+        setTeleEngaged(Number(data[26]) ? true : false);
 
         // After Round
         
-        setEventKey(data[26]);
-        setComments(data[27]);
+        setEventKey(data[27]);
+        setComments(data[28]);
     }
     
 

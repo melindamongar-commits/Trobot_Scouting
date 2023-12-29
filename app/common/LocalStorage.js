@@ -23,7 +23,8 @@ const settingsKey = "@settingsKey";
 const otherSettingsKey = "@OtherSettingsKey";
 const cloudCacheKey = "@cloudCacheKey";
 const tbaEventCacheKey = "@tbaEventCacheKey";
-const matchCacheKey = "@matchCacheKey"
+const matchCacheKey = "@matchCacheKey";
+const pitCacheKey = "@pitCacheKey";
 const delimiter = String.fromCharCode(124);
 
 // Take a list of data and packs it into a string. Only works with lists numbers and strings
@@ -120,18 +121,33 @@ const deleteMultipleDataKeys = async (keys) => {
 }
 
 // Takes a list of values and saves it according to conventions. Returns false if there was an error, returns true otherwise
-const saveMatchData = async (data) => {
-    const matchTypeValues = ["Practice", "Qualifiers", "Finals"]; // Probably should be stored elsewhere
-
-    const key = `@MD${data[2]}-${matchTypeValues[data[4]]}-${data[3]}`;
+const savePitData = async (data) => {
+    const key = `@PD${data[2]}-${data[1]}-Pit`;
     const serializedData = serializeData(data);
+
+    //console.log(key);
+    //console.log(serializedData);
     return await writeData(serializedData, key);
 };
 
-//Save latest version of match meta data for reuse.
-const saveMatchCache = async (data) => {
-    const stringData = JSON.stringify(data);
-    return await writeData(stringData, matchCacheKey);
+// Reads the data stored at a key value. Returns false if there was an error, returns list of data otherwise.
+const loadPitData = async (key) => {
+    const data = await readData(key);
+    if (data == false) {
+        return null;
+    } else {
+        const listData = deserializeData(data);
+        return listData;
+    }
+};
+
+// Takes a list of values and saves it according to conventions. Returns false if there was an error, returns true otherwise
+const saveMatchData = async (data) => {
+    const matchTypeValues = ["Practice", "Qualifiers", "Finals"]; // Probably should be stored elsewhere
+    //console.log(data);
+    const key = `@MD${data[3]}-${matchTypeValues[data[5]]}-${data[4]}`;
+    const serializedData = serializeData(data);
+    return await writeData(serializedData, key);
 };
 
 // Reads the data stored at a key value. Returns false if there was an error, returns list of data otherwise.
@@ -143,6 +159,12 @@ const loadMatchData = async (key) => {
         const listData = deserializeData(data);
         return listData;
     }
+};
+
+//Save latest version of match meta data for reuse.
+const saveMatchCache = async (data) => {
+    const stringData = JSON.stringify(data);
+    return await writeData(stringData, matchCacheKey);
 };
 
 // Reads the latest stored version of the match meta data
@@ -159,7 +181,7 @@ const loadMatchCache = async () => {
 
 // Helper function to only keep match keys
 const removeNonMatchKeys = (loadedKeys) => {
-    const filtered = loadedKeys.filter((keyName) => {return keyName.slice(0, 3) == "@MD"});
+    const filtered = loadedKeys.filter((keyName) => {return keyName.slice(0, 3) == "@MD" || keyName.slice(0, 3) == "@PD"});
     return filtered;
 }
 
@@ -197,12 +219,27 @@ const saveCloudCache = async (cloudData) => {
     const stringData = JSON.stringify(cloudData);
     return await writeData(stringData, cloudCacheKey);
 }
+const savePitCache = async (pitData) => {
+    const stringData = JSON.stringify(pitData);
+    return await writeData(stringData, pitCacheKey);
+}
 
 // Helper function to load cloud cache
 const loadCloudCache = async () => {
     const loadedCache = await readData(cloudCacheKey);
     try {
         const parsedData = JSON.parse(loadedCache);
+        return parsedData;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Helper function to load cloud cache
+const loadPitCache = async () => {
+    const loadedPitCache = await readData(pitCacheKey);
+    try {
+        const parsedData = JSON.parse(loadedPitCache);
         return parsedData;
     } catch (e) {
         return null;
@@ -256,9 +293,12 @@ export {
     loadSettings,
     loadOtherSettings,
     saveCloudCache,
+    savePitCache,
     saveTbaEventCache,
     loadTbaEventCache,
     loadCloudCache,
     loadMatchCache,
-    saveMatchCache
+    saveMatchCache,
+    savePitData,
+    loadPitCache,
 }
