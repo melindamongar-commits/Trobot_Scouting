@@ -345,22 +345,22 @@ const downloadDataToXLSX = async () => {
 
         XLSX.utils.book_append_sheet(workbook, teamSheet, `EventMatchData`);
     }
-    for (const pit of Object.keys(filePitContents)) {
-        const Sheet = XLSX.utils.aoa_to_sheet([
-            [
-                "DataType","ScouterName","TeamNumber","EventKey","Comments","Photos"           ],
-            ...(filePitContents[pit].map(pit => [
-                pit[0],
-                pit[1],
-                pit[2],
-                pit[3],
-                pit[4],
-                pit[5]
-            ]))
-        ]);
+    // for (const pit of Object.keys(filePitContents)) {
+    //     const Sheet = XLSX.utils.aoa_to_sheet([
+    //         [
+    //             "DataType","ScouterName","TeamNumber","EventKey","Comments","Photos"           ],
+    //         ...(filePitContents[pit].map(pit => [
+    //             pit[0],
+    //             pit[1],
+    //             pit[2],
+    //             pit[3],
+    //             pit[4],
+    //             pit[5]
+    //         ]))
+    //     ]);
 
-        XLSX.utils.book_append_sheet(workbook, teamSheet, `EventPitData`);
-    }
+    //     XLSX.utils.book_append_sheet(workbook, teamSheet, `EventPitData`);
+    //}
     XLSX.writeFile(workbook, "CloudData.xlsx");
 }
 window.downloadDataToXLSX = downloadDataToXLSX;

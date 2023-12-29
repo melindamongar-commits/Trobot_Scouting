@@ -6,10 +6,10 @@
   "homepage": "http://melindamongar-commits.github.io/webtools",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode=development",
+    "build": "webpack --config webpack.config.js --mode=development",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
-  },
+   },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -23,7 +23,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "gh-pages": "^6.0.0",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1"
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }
