@@ -240,13 +240,13 @@ const PitScout = ({route, navigation}) =>
                     </View>
                     <View style={styles.rowAlignContainer}>
                     <TTButton 
-                        text=" - " 
+                        text=" < " 
                         onPress={() => {setPhotoIndex(photoIndex - 1);}}
                         buttonStyle={{...globalButtonStyles.secondaryButton, width: "25", margin: 3*vh}} 
                         textStyle={globalTextStyles.secondaryText}
                     />
                     <TTButton 
-                        text=" + " 
+                        text=" > " 
                         onPress={() => {setPhotoIndex(photoIndex + 1);}}
                         buttonStyle={{...globalButtonStyles.secondaryButton, width: "20", margin: 3*vh}} 
                         textStyle={globalTextStyles.secondaryText}

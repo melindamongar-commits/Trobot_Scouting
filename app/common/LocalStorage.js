@@ -144,7 +144,7 @@ const loadPitData = async (key) => {
 // Takes a list of values and saves it according to conventions. Returns false if there was an error, returns true otherwise
 const saveMatchData = async (data) => {
     const matchTypeValues = ["Practice", "Qualifiers", "Finals"]; // Probably should be stored elsewhere
-    console.log(data);
+    //console.log(data);
     const key = `@MD${data[3]}-${matchTypeValues[data[5]]}-${data[4]}`;
     const serializedData = serializeData(data);
     return await writeData(serializedData, key);

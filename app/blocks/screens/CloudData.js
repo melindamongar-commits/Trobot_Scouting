@@ -253,6 +253,7 @@ const CloudData = ({route, navigation}) => {
                                     {
                                         teamNumber: props.teamNumber, 
                                         teamStatistics: statistics[props.teamNumber],
+                                        settings: settings,
                                         teamData: Object.keys(cloudData).includes(props.teamNumber)? sortMatches(cloudData[props.teamNumber]):[],
                                         pitData: Object.keys(pitData).includes(props.teamNumber)? pitData[props.teamNumber]:[],
                                     })

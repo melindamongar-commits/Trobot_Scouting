@@ -1,12 +1,12 @@
 // Library Imports
 import * as React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView,  Image,StyleSheet, Text, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 
 // Component Imports
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { fU, vh, vw } from '../../common/Constants';
-import { globalContainerStyles, globalInputStyles, globalTextStyles } from '../../common/GlobalStyleSheet';
+import { globalContainerStyles, globalButtonStyles, globalInputStyles, globalTextStyles } from '../../common/GlobalStyleSheet';
 import { TTGradient } from '../components/ExtraComponents';
 import { TTDropdown } from '../components/InputComponents';
 import { matchTypeValues, teamColorValues } from './ScoutTeam';
@@ -28,6 +28,23 @@ const TeamAnalytics = ({route, navigation}) => {
             if (pit[4].length !==0)return false;
         }
         return true;
+    }
+
+    const getImage = (imageName) => {
+        console.log(imageName);
+
+        console.log(route.params.settings);
+
+        const subpath = route.params.settings.subpath +"%2FPhotos%2F";
+        console.log(subpath );
+        const filepath = subpath + imageName;
+
+        const uri = "https://firebasestorage.googleapis.com/v0/b/tigerscout-49962.appspot.com/o/" + subpath  + imageName + "?alt=media";
+        console.log(uri);
+
+        return uri;
+
+        
     }
 
     const checkForDNP = () => {
@@ -106,9 +123,9 @@ const TeamAnalytics = ({route, navigation}) => {
         const matchAbbreviations = route.params.teamData.map((item) => {
             return `${matchTypeValues[item[5]][1]}${item[4]}`;
         });
-        setChartLabels(matchAbbreviations);
-        
+        setChartLabels(matchAbbreviations);        
         setChartData(getSpecificData("Teleop Points"));
+
     }, [])
 
     // Individual match data component
@@ -185,10 +202,12 @@ const TeamAnalytics = ({route, navigation}) => {
         );
     }
     // Individual pit data component
+
     const PitDataBox = (props) => {
 
     if (props.pitData && props.pitData.length > 0)
     {
+
         return (
             <View key={props.id} style={styles.matchDataContainer}>
                 <Text style={{...globalTextStyles.secondaryText, fontSize: 24*fU, color: CS.dark1}}>
@@ -211,9 +230,22 @@ const TeamAnalytics = ({route, navigation}) => {
                         Images
                     </Text>
 
-                    <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.pitData[5]}</Text></Text>
-                </View>
 
+            { props.pitData[5].split(",").map((imageName) => {
+                return (
+                    <View style={styles.rowAlignContainer}>
+                    <Text style={styles.dataText}></Text>
+                    <Image
+                        style={{width: 200, height: 250}}
+                        source={{uri:getImage(imageName)}}
+                    />
+                    
+                    <Text style={styles.dataText}></Text>
+                    </View>
+                );
+            })}
+
+                </View>
             </View>
         );
         } else {
@@ -388,12 +420,10 @@ const TeamAnalytics = ({route, navigation}) => {
                     <TTGradient/>
                     <View style={{margin: 1*vh}}/>
 
-                    <Text style={styles.sectionTitle}>
-                        Pit Scouting
-                    </Text>
+                    {route.params.pitData.length > 0 && <Text style={styles.sectionTitle}>Pit Scouting</Text>}
 
                     {route.params.pitData.map((pit, index) => {
-                        return <PitDataBox key={index} id={index} pitData={pit}/>
+                          return <PitDataBox key={index} id={index} pitData={pit}/>
                     })}
                     
 

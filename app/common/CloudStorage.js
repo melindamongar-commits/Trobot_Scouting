@@ -1,7 +1,7 @@
 // Library imports
 import LZString from "lz-string";
 import { initializeApp, getApp, getApps, deleteApp } from "firebase/app";
-import { ref, uploadBytes, listAll, getBlob } from "firebase/storage";
+import { ref, uploadBytes, listAll, getBlob, getDownloadURL } from "firebase/storage";
 import { Promise } from "bluebird";
 
 // Component imports
@@ -147,6 +147,17 @@ const getAllFilesFromCloud = async (storage, subpath) => {
     
     return fileNames;
 }
+const downloadImageURL= async (storage, filepath) => {
+    const storageRef = ref(storage, filepath);
+
+    console.log(filepath);
+    try {
+        return await getDownloadURL(storageRef);
+    } catch (e) {
+        console.error(`Error Downloading File: ${e}`);
+        return null;
+    }
+}
 
 // Downloads the data of all the files from the cloud
 const downloadAllFilesFromCloud = async (storage, subpath) => {
@@ -180,7 +191,7 @@ const downloadAllFilesFromCloud = async (storage, subpath) => {
         }
 
     } catch (e) {
-        console.error(`Error getting all files:\n${e}`);
+        ref.error(`Error getting all files:\n${e}`);
         return null;
     }
 
@@ -233,5 +244,6 @@ export {
     readStringFromCloud, 
     getAllFilesFromCloud,
     downloadAllFilesFromCloud,
-    downloadPitFilesFromCloud
+    downloadPitFilesFromCloud,
+    downloadImageURL,
 };
