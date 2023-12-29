@@ -34,7 +34,7 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const getImage = (imageName, firebaseURL, subpath) => {
         const uri = "https://firebasestorage.googleapis.com/v0/b/"+firebaseURL+"/o/" + subpath +"%2FPhotos%2F" + imageName + "?alt=media";
-        console.log(uri);
+        //console.log(uri);
 
         return uri;
     }
