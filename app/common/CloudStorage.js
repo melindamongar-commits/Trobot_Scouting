@@ -54,35 +54,21 @@ const uploadImage = async (storage, uri, filepath) => {
         contentType: 'image/jpeg'
     };
 
-    const blob = uriToBlob(uri);
+    console.log(uri);
+    console.log(filepath);
+
+
+    const fetchResponse = await fetch(uri);
+
+    const blob = await fetchResponse.blob();
     const storageRef = ref(storage, filepath);
     
    try{
-        await uploadBytes(storageRef, blob, metadata);
+        await uploadBytes(storageRef, blob)
     }catch(e){
         console.error(`Error Uploading image: ${e}`);
     }
 }
-
-
-const uriToBlob = async(uri) => {
-
-    const blob = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          resolve(xhr.response);
-        };
-        xhr.onerror = function (e) {
-          reject(new TypeError("Network request failed"));
-        };
-        xhr.responseType = "blob";
-        xhr.open("GET", uri, true);
-        xhr.send(null);
-    });
-    
-    return blob;
-};
-    
     
 
 // Uploads multiple strings to the cloud

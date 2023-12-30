@@ -132,6 +132,7 @@ const savePitData = async (data) => {
 
 // Reads the data stored at a key value. Returns false if there was an error, returns list of data otherwise.
 const loadPitData = async (key) => {
+    console.log("PITDATA " + key);
     const data = await readData(key);
     if (data == false) {
         return null;
@@ -301,4 +302,5 @@ export {
     saveMatchCache,
     savePitData,
     loadPitCache,
+    loadPitData,
 }
