@@ -19,7 +19,7 @@
         </div>
         <!-- QR Code Generator -->
         <div class="columnContainer sectionBackground">
-            <h1 class="subtitle selfCenter">QR Code Generator</h1>
+            <h1 class="subtitle selfCenter">Firebase QR Code Generator</h1>
             <div class="sectionContainer">
                 <!-- Enter settings -->
                 <div style="flex-grow: 1;" class="columnContainer itemsCenter">
@@ -82,6 +82,63 @@
 
                     <p class="miniTitle">Text Code:</p>
                     <p class="textCode expandHorizontal" id="QRtext" ></p>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+
+        <!-- QR Code Generator -->
+        <div class="columnContainer sectionBackground">
+            <h1 class="subtitle selfCenter">TBA QR Code Generator</h1>
+            <div class="sectionContainer">
+                <!-- Enter settings -->
+                <div style="flex-grow: 1;" class="columnContainer itemsCenter">
+    
+                    <div class="rowContainer itemsCenter">
+                        <p class="inputLabel">TBA API Key</p>
+                        <input 
+                            id="TBAkey" 
+                            class="textInput" 
+                            spellcheck="false"
+                            maxlength="100"
+                        >
+                    </div>
+                    <div class="rowContainer">
+                        <p class="inputLabel">TBA Event Key</p>
+                        <input 
+                            id="TBAEventKey" 
+                            class="textInput" 
+                            spellcheck="false"
+                            maxlength="32"
+                        >
+                    </div>
+                    <div class="rowContainer">
+                        <p class="inputLabel">Password</p>
+                        <input 
+                            id="TBApassword" 
+                            class="textInput" 
+                            spellcheck="false"
+                            maxlength="32"
+                        >
+                    </div>
+    
+                    <br><br><br>
+                    <button onclick="window.generateTbaQRFromData();">Create QR Code</button>
+                    <br><br>
+                </div>
+    
+                <div class="verticalSpacer"></div>
+    
+                <!-- Show generated code -->
+                <div style="flex-grow: 0.7;" class="columnContainer itemsCenter">
+                    <canvas id="QRcanvas2"></canvas>
+                    
+                    <br>
+                    <a style="display:none" href="" download="tbaconnect.png" id="QRdownload2">Download</a>
+
+                    <p class="miniTitle">Text Code:</p>
+                    <p class="textCode expandHorizontal" id="QRtext2" ></p>
                 </div>
             </div>
         </div>
