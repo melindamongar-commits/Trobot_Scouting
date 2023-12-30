@@ -107,7 +107,7 @@ const uploadMultipleStringsToCloud = async (storage, multiStringData, filepaths)
                             var file = fileArray[j];
                             var filename = file.replaceAll(removePath, "");
                             var imagepath = "/" + (filepath.split("/")[0]) +"/Photos/" + filename;
-                            console.log(imagepath);
+                            
                             uploadImage(storage, file.replaceAll("file:///", "file:/"), imagepath);
                         }
                         stringData = finalString;

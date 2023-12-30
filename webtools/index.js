@@ -119,6 +119,76 @@ const generateQRFromData = () => {
 window.generateQRFromData = generateQRFromData;
 
 
+const generateTbaQRFromData = () => {
+    // Canvas and QRText
+    const canvas = document.getElementById("QRcanvas2");
+    const QRText = document.getElementById("QRtext2");
+    const width = canvas.clientWidth;
+
+    // Getting inputs
+    const tbaKey = document.getElementById("TBAkey").value;
+    const tbaEventKey = document.getElementById("TBAEventKey").value;
+    const qrPassword = document.getElementById("TBApassword").value;
+    
+
+    // Error checking
+    if (tbaKey.length === 0) {
+        showError("Please enter TBA Key.");
+        return;
+    };
+    if (tbaEventKey.length === 0) {
+        showError("You need to enter the Event Key.");
+        return;
+    }
+
+    if (qrPassword.length === 0) {
+        showError("You need a password.");
+        return;
+    };
+
+    const tbaSettings = {
+        tbaKey: tbaKey,
+        tbaEventKey: tbaEventKey
+    };
+
+    // Generate codes
+    const tbaCode = CryptoJS.AES.encrypt(JSON.stringify(tbaSettings), qrPassword).toString();
+    QRCode.toCanvas(
+        canvas, 
+        tbaCode,
+        {
+            width: width,
+            errorCorrectionLevel: "M"
+        }, 
+        (e) => {
+            if (e) console.error(e);
+        }
+    );
+    QRText.innerHTML = tbaCode;
+
+    // Download
+    const qrDownload2 = document.getElementById("QRdownload2");
+    QRCode.toDataURL(
+        tbaCode,
+        {
+            width: 2000,
+            height: 2000,
+            errorCorrectionLevel: "M"
+        }, 
+        (e, url) => {
+            if (e) {
+                console.error(e);
+                return;
+            }
+            qrDownload2.style.display = "block";
+            qrDownload2.href = url;
+        }
+    );
+    
+    return;
+}
+window.generateTbaQRFromData = generateTbaQRFromData;
+
 const downloadDataToXLSX = async () => {
     const bucketCloudConfig = document.getElementById("XLSXcloudConfig").value;
     const bucketSubpath = document.getElementById("XLSXsubpath").value;
@@ -211,63 +281,85 @@ const downloadDataToXLSX = async () => {
     // Downloading into an organized object
     const fileContents = {};
     for (const stringData of allFileData) {
+
         const data = deserializeData(stringData);
-        const teamNumber = data[26];
-        if (fileContents[teamNumber] == null) fileContents[teamNumber] = [data];
-        else fileContents[teamNumber].push(data);
+        const eventNumber = data[0];
+
+        if (fileContents[eventNumber] == null) fileContents[eventNumber] = [data];
+        else fileContents[eventNumber].push(data);
     }
 
-    // Make a sheet from each team
-    const workbook = XLSX.utils.book_new();
+    try {
+        // Make a sheet from each team
+        const workbook = XLSX.utils.book_new();
 
-    // Constants
-    const matchTypeValues = ["Practice", "Qualifiers", "Finals"];
-    const teamColorValues = ["Red", "Blue"]
-    const deviceValues = ["Blue1","Blue2","Blue3","Red1","Red2","Red3"];
+        // Constants
+        const matchTypeValues = ["Practice", "Qualifiers", "Finals"];
+        const deviceValues = ["Blue1","Blue2","Blue3","Red1","Red2","Red3"];
 
-    for (const team of Object.keys(fileContents)) {
-        const teamSheet = XLSX.utils.aoa_to_sheet([
-            [
-                "ScouterName","Device","TeamNumber","MatchNumber","MatchType","AllianceColor",
-                "Mobility","AutoDocked","AutoEngaged",
-                "AutoCubeHigh","AutoCubeMid","AutoCubeLow","AutoConeHigh","AutoConeMid","AutoConeLow","AutoMisses",
-                "TeleCubeHigh","TeleCubeMid","TeleCubeLow","TeleConeHigh","TeleConeMid","TeleConeLow","TeleMisses",
-                "EndgameParked","EndgameDocked","EndgameEngaged","EventKey","Comments"            ],
-            ...(fileContents[team].map(match => [
-                match[0],
-                deviceValues[match[1]],
-                match[2],
-                match[3],
-                matchTypeValues[match[4]],
-                match[5],
-                Number(match[6]) ? true : false,
-                Number(match[7]) ? true : false,
-                Number(match[8]) ? true : false,
-                Number(match[9]),
-                Number(match[10]),
-                Number(match[11]),
-                Number(match[12]),
-                Number(match[13]),
-                Number(match[14]),
-                Number(match[15]),
-                Number(match[16]),
-                Number(match[17]),
-                Number(match[18]),
-                Number(match[19]),
-                Number(match[20]),
-                Number(match[21]),
-                Number(match[22]),
-                Number(match[23]) ? true : false,
-                Number(match[24]) ? true : false,
-                Number(match[25]) ? true : false,
-                match[26],
-                match[27]
-            ]))
-        ]);
+        for (const dataType of Object.keys(fileContents)) {
+            if(dataType == "Match") {
+                const Sheet = XLSX.utils.aoa_to_sheet([
+                    ["DataType","ScouterName","Device","TeamNumber","MatchNumber","MatchType","AllianceColor",
+                        "Mobility","AutoDocked","AutoEngaged",
+                        "AutoCubeHigh","AutoCubeMid","AutoCubeLow","AutoConeHigh","AutoConeMid","AutoConeLow","AutoMisses",
+                        "TeleCubeHigh","TeleCubeMid","TeleCubeLow","TeleConeHigh","TeleConeMid","TeleConeLow","TeleMisses",
+                        "EndgameParked","EndgameDocked","EndgameEngaged","EventKey","Comments"],
+                    ...(fileContents[dataType].map(match => [
+                        match[0],
+                        match[1],
+                        deviceValues[match[2]],
+                        match[3],
+                        match[4],
+                        matchTypeValues[match[5]],
+                        match[6],
+                        Number(match[7]) ? true : false,
+                        Number(match[8]) ? true : false,
+                        Number(match[9]) ? true : false,
+                        Number(match[10]),
+                        Number(match[11]),
+                        Number(match[12]),
+                        Number(match[13]),
+                        Number(match[14]),
+                        Number(match[15]),
+                        Number(match[16]),
+                        Number(match[17]),
+                        Number(match[18]),
+                        Number(match[19]),
+                        Number(match[20]),
+                        Number(match[21]),
+                        Number(match[22]),
+                        Number(match[23]),
+                        Number(match[24]) ? true : false,
+                        Number(match[25]) ? true : false,
+                        Number(match[26]) ? true : false,
+                        match[27],
+                        match[28]
+                    ]))
+                ]);
 
-        XLSX.utils.book_append_sheet(workbook, teamSheet, `EventScoutData`);
+                XLSX.utils.book_append_sheet(workbook, Sheet, dataType);
+            }
+            if(dataType == "Pit") {
+                const pitSheet = XLSX.utils.aoa_to_sheet([
+                    ["DataType","ScouterName","TeamNumber","EventKey","Comments","Photos"],
+                    ...(fileContents[dataType].map(pit => [
+                        pit[0],
+                        pit[1],
+                        pit[2],
+                        pit[3],
+                        pit[4],
+                        pit[5]
+                    ]))
+                ]);
+        
+                XLSX.utils.book_append_sheet(workbook, pitSheet, dataType);
+            }
+        }
+
+        XLSX.writeFile(workbook, "CloudData.xlsx");
+    } catch(e) {
+        showError(e);
     }
-
-    XLSX.writeFile(workbook, "CloudData.xlsx");
 }
 window.downloadDataToXLSX = downloadDataToXLSX;
