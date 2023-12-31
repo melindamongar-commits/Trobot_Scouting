@@ -54,14 +54,10 @@ const uploadImage = async (storage, uri, filepath) => {
         contentType: 'image/jpeg'
     };
 
-    console.log(uri);
-    console.log(filepath);
-
     const storageRef = ref(storage, filepath);
        
    try{
         const blob = await new Promise((resolve, reject) => {
-            console.log(uri);
 
             const xhr = new XMLHttpRequest();
             xhr.onload = function () {
