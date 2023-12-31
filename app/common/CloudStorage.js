@@ -1,7 +1,7 @@
 // Library imports
 import LZString from "lz-string";
 import { initializeApp, getApp, getApps, deleteApp } from "firebase/app";
-import { ref, uploadBytes, listAll, getBlob, getDownloadURL } from "firebase/storage";
+import { storage, ref, uploadBytes, listAll, getBlob, getDownloadURL, putFile } from "firebase/storage";
 import { Promise } from "bluebird";
 
 // Component imports
@@ -57,19 +57,28 @@ const uploadImage = async (storage, uri, filepath) => {
     console.log(uri);
     console.log(filepath);
 
-
-    const fetchResponse = await fetch(uri);
-
-    const blob = await fetchResponse.blob();
     const storageRef = ref(storage, filepath);
-    
+       
    try{
-        await uploadBytes(storageRef, blob)
+        const blob = await new Promise((resolve, reject) => {
+            console.log(uri);
+
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+            resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+            reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+        });
+        await uploadBytes(storageRef, blob);
     }catch(e){
         console.error(`Error Uploading image: ${e}`);
     }
 }
-    
 
 // Uploads multiple strings to the cloud
 const uploadMultipleStringsToCloud = async (storage, multiStringData, filepaths) => {
