@@ -11,7 +11,7 @@ import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTAlert, TTConfirmation, TTGradient, TTWarning, TTPoll } from '../components/ExtraComponents';
 import { TTButton, TTPushButton,  TTSimpleCheckbox } from '../components/ButtonComponents';
 import { readStringFromCloud, initializeFirebaseFromSettings } from '../../common/CloudStorage';
-import { readData, writeData, loadSettings, loadOtherSettings, deleteData, settingsKey, otherSettingsKey, saveCloudCache, saveTbaEventCache, loadTbaEventCache, loadMatchCache, saveMatchCache, tbaEventCacheKey, matchCacheKey } from '../../common/LocalStorage';
+import { readData, writeData, loadSettings, loadOtherSettings, loadDevice, deleteData, settingsKey, otherSettingsKey, deviceKey, saveCloudCache, saveTbaEventCache, loadTbaEventCache, loadMatchCache, saveMatchCache, tbaEventCacheKey, matchCacheKey } from '../../common/LocalStorage';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 import { vh,vw } from '../../common/Constants';
 import { TTTextInput, TTDropdown } from '../components/InputComponents';
@@ -24,6 +24,8 @@ import { getTBAEventData } from '../../common/TbaEventStorage';
 const Settings = ({route, navigation}) => {
     // Barcode Scanner states
     const [scanned, setScanned] = React.useState(true);
+    
+    const [tbaScanned, setTBAScanned] = React.useState(true);
     const [hasPermission, setHasPermission] = React.useState(null);
 
     // Warning states
@@ -37,18 +39,27 @@ const Settings = ({route, navigation}) => {
     // Confirmation states
     const [confirmationVisible, setConfirmationVisible] = React.useState(false);
     const [confirmationContent, setConfirmationContent] = React.useState([]);
-
+    const [confirmationTBAVisible, setConfirmationTBAVisible] = React.useState(false);
+    const [confirmationTBAContent, setConfirmationTBAContent] = React.useState([]);
     // Poll sates
     const [enterTextVisible, setEnterTextVisible] = React.useState(false);
     const [enterPasswordVisible, setEnterPasswordVisible] = React.useState(false);
     const [enteredPassword, setEnteredPassword] = React.useState("");
-    
+
+    const [enterTBATextVisible, setEnterTBATextVisible] = React.useState(false);
+    const [enterTBAPasswordVisible, setEnterTBAPasswordVisible] = React.useState(false);
+    const [enteredTBAPassword, setEnteredTBAPassword] = React.useState("");
+
     const [connectionData, setConnectionData] = React.useState("");
+    
+    const [connectionTBAData, setConnectionTBAData] = React.useState("");
+
     const [device, setDevice]= React.useState("Device"); 
     const [eventKey, setEventKey]= React.useState("");
     const [tbaKey, setTBAKey]= React.useState("");
 
     const [otherSettings, setOtherSettings] = React.useState({});
+    //const [deviceSetting, setDeviceSetting] = React.useState({});
     const [hasTbaEvent, setHasTbaEvent] = React.useState(false);
 
     const [tbaEventData, setTbaEventData] = React.useState("");
@@ -74,27 +85,38 @@ const Settings = ({route, navigation}) => {
 
         const loadOtherSettingsToState = async () => {
             const loadedOtherSettings = await loadOtherSettings();
-           
+            setOtherSettings(loadedOtherSettings);
+
             if(loadedOtherSettings){
-                setOtherSettings(loadedOtherSettings);
                 if(loadedOtherSettings.tbaKey){
                     setTBAKey(loadedOtherSettings.tbaKey);
                 };
 
-                setEventKey(loadedOtherSettings.eventKey);
-                setDevice(loadedOtherSettings.device);
+                if(loadedOtherSettings.eventKey){
+                    setEventKey(loadedOtherSettings.eventKey);
+                };
 
                 const loadTbaEvent = await loadTbaEventCache();
+              
                 if (loadTbaEvent !== null) {
+                    //console.log(JSON.parse(loadTbaEvent));
                     if (JSON.parse(loadTbaEvent)[0].eventkey == loadedOtherSettings.eventKey){
                         setHasTbaEvent(true);
                     } 
                 }
             }
-          
-        };
-        loadOtherSettingsToState()
 
+        };
+        loadOtherSettingsToState();
+
+        const loadDeviceSettingsToState = async () => {
+            const deviceSettings = await loadDevice();
+            console.log(deviceSettings);
+            if (deviceSettings){
+                setDevice(deviceSettings.device);
+            }
+        }
+        loadDeviceSettingsToState();
         // Loading firebase from settings
         initializeFirebaseFromSettings();
     }, []);
@@ -122,19 +144,43 @@ const Settings = ({route, navigation}) => {
         );
 
     }
-    const saveOtherSettings = async () => {
-
-        const otherSettings = {
+    const setDeviceSetting = async () => {
+        const deviceSettings = {
             device: device,
-            tbaKey: tbaKey,
-            eventKey: eventKey
         };
-        
-        setOtherSettings(otherSettings);
-        
-        writeData(JSON.stringify(otherSettings), otherSettingsKey);
-        await saveTbaEventCache(await getTBAEventData(tbaKey, eventKey));
-        try  {  
+        console.log(deviceSettings);
+        writeData(JSON.stringify(deviceSettings), deviceKey);
+    }
+
+    const connectFromTBAData = async () => {
+        const contentEquivalency = (a, b) => {
+            return a.sort().join(",") === b.sort().join(",");
+        }
+        try {
+            // !! NEED TO ADD MORE CHECKS TO MAKE SURE GARBAGE DATA CAN'T BE UPLOADED!
+            const bytes = CryptoJS.AES.decrypt(connectionTBAData.toString(), enteredTBAPassword);
+            const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+            const parsedData = JSON.parse(decryptedData);
+
+            // Make sure barcode has required keys
+            const requiredKeys = ["tbaEventKey", "tbaKey"];
+            if (parsedData != null) {
+                if (!contentEquivalency(requiredKeys, Object.keys(parsedData))) {
+                    setWarningContent([null, "QR code doesn't have the right keys to connect to a bucket!", null]);
+                    setTimeout(() => setWarningVisible(true), 500);
+                    return;
+                }
+            }
+            const otherSettings = {
+                tbaKey: parsedData.tbaKey,
+                eventKey: parsedData.tbaEventKey,
+            };
+            setOtherSettings(otherSettings);
+
+            writeData(JSON.stringify(otherSettings), otherSettingsKey);
+
+            try  {                  
+            await saveTbaEventCache (await getTBAEventData(parsedData.tbaKey, parsedData.tbaEventKey));
             const loadTbaEvent = await loadTbaEventCache();
 
             if (loadTbaEvent !== null) {      
@@ -149,6 +195,14 @@ const Settings = ({route, navigation}) => {
             console.error(e);
             setHasTbaEvent(false);
         }
+
+        setAlertContent([null, `Successfully connected to TBA!\n`, null]);
+        setTimeout(() => setAlertVisible(true), 500);
+    } catch (e) {
+        setWarningContent([null, `Invalid data entered, connection failed!`, null]);
+        setTimeout(() => setWarningVisible(true), 500);
+        return;
+    }
            
     }
 
@@ -162,7 +216,7 @@ const Settings = ({route, navigation}) => {
             const bytes = CryptoJS.AES.decrypt(connectionData.toString(), enteredPassword);
             const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
             const parsedData = JSON.parse(decryptedData);
-
+            
             // Make sure barcode has required keys
             const requiredKeys = ["bucketName", "cloudConfig", "subpath", "permissions"];
             if (parsedData != null) {
@@ -199,25 +253,56 @@ const Settings = ({route, navigation}) => {
         setEnterPasswordVisible(true);
     };
 
+    const handleBarCodeTBAScanned = async ({ type, data }) => {
+        setTBAScanned(true);
+        setConnectionTBAData(data);
+        setEnteredTBAPassword("");
+        setEnterTBAPasswordVisible(true);
+    };
+
     const deleteCallback = () => {
         deleteData(settingsKey);
+        deleteData(otherSettingsKey);
         setSettings(null);
         saveCloudCache(null);
     };
 
-    const clearTBACache = () => {
-        
-        setHasTbaEvent(false);
+    const deleteTBACache = () => {        
         deleteData(otherSettingsKey);
         deleteData(tbaEventCacheKey);
         deleteData(matchCacheKey);
         setOtherSettings(null);
         setHasTbaEvent(false);
+        saveTbaEventCache(null);
         
     };
     //
     //  QR Code Scanner
     //
+    const BarCodeTBAScannerLayout = () => {
+        return (
+            <View style={{flex: 1, flexDirection: "column", alignContent: "center", justifyContent: "space-around", padding: 3*vh}}>
+                <Camera
+                    style={{flex: 1, borderRadius: 2*vh}}
+                    key={tbaScanned ? 1 : 2}
+                    barCodeScannerSettings={{
+                        barCodeTypes: [
+                            BarCodeScanner.Constants.BarCodeType.qr
+                        ]
+                    }}
+                    onBarCodeScanned={scanned ? undefined : handleBarCodeTBAScanned}
+                />
+                <TTButton 
+                    text="Cancel" 
+                    onPress={() => {setTBAScanned(true)}}
+                    buttonStyle={{...globalButtonStyles.primaryButton, width: "100%", margin: 3*vh}} 
+                    textStyle={globalTextStyles.secondaryText}
+                />
+            </View>
+        );
+    };
+
+
     const BarCodeScannerLayout = () => {
         return (
             <View style={{flex: 1, flexDirection: "column", alignContent: "center", justifyContent: "space-around", padding: 3*vh}}>
@@ -241,7 +326,6 @@ const Settings = ({route, navigation}) => {
         );
     };
 
-
     //
     //  Normal Settings Layout
     //
@@ -252,11 +336,42 @@ const Settings = ({route, navigation}) => {
                 <TTGradient/>
                 
                 {/* Settings label */}
+                
+                {
+                    
+                    (
+                        <View style={{...styles.rowAlignContainer, zIndex: 7}}>
+                        
+                        {/* Device */}
+                        <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
+                            Device:
+                        </Text>
+                            <TTDropdown 
+                                state={device} 
+                                setState={setDevice} 
+                                items={deviceValues}
+                                boxWidth={40*vw}
+                                boxHeight={5*vh}
+                                boxStyle={globalInputStyles.dropdownInput}
+                                textStyle={globalTextStyles.labelText}
+                            />
+                            <TTButton
+                                text="Save" 
+                                onPress={() => {
+                                    setDeviceSetting();
+                                }}
+                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}} 
+                                textStyle={{...globalTextStyles.secondaryText, fontSize: 24}}
+                            />
+                            
+                        </View>
+                        
+                    )
+                }
                 {
                     settings !== null && 
                     (<View>
 
-                        <View style={{margin: 1 * vh}}/>
                         <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
                             Connected to bucket:
                         </Text>
@@ -280,87 +395,6 @@ const Settings = ({route, navigation}) => {
                         />
 
                         <View style={{margin: 1 * vh}}/>
-                        <Text style={styles.sectionHeader}>TBA Settings</Text>
-
-                        <View style={{height: 46*vh, zIndex: 1}}>
-
-                            {/*TBA KEY*/}
-                            <View style={styles.rowAlignContainer}>
-                            <TTTextInput
-                                state={tbaKey}
-                                setState={setTBAKey}
-                                placeholder="Enter TBA Key"
-                                placeholderTextColor={`${CS.light1}50`}
-                                multiline={true}
-                                maxLength={65}
-                                numberOfLines={4}
-                                
-                                style={[
-                                    {...globalInputStyles.numberInput, width: "90%", height: 8*vh},
-                                    globalTextStyles.labelText
-                                ]}
-                            />
-                            </View>
-                            
-                            <View style={{margin: 1 * vh}}/>
-                            {/*Event KEY*/}
-                            <View style={styles.rowAlignContainer}>
-                            <TTTextInput
-                                state={eventKey}
-                                setState={setEventKey}
-                                placeholder="Enter Event Key"
-                                placeholderTextColor={`${CS.light1}50`}
-                                multiline={false}
-                                maxLength={65}
-                                numberOfLines={1}                          
-                                style={[
-                                    {...globalInputStyles.numberInput, width: "90%", height: 5*vh},
-                                    globalTextStyles.labelText
-                                ]}
-                            />
-                            </View>
-                            
-                            {/* Device */}
-                            <View style={{...styles.rowAlignContainer, zIndex: 6}}>
-                            <TTDropdown 
-                                state={device} 
-                                setState={setDevice} 
-                                items={deviceValues}
-                                boxWidth={40*vw}
-                                boxHeight={5*vh}
-                                boxStyle={globalInputStyles.dropdownInput}
-                                textStyle={globalTextStyles.labelText}
-                            />
-                            </View>
-                            <View style={{margin: 1 * vh}}/>
-                            <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
-                                Connected to TBA Match Data:
-                            </Text>
-                            <Text style={{...globalTextStyles.secondaryText, fontSize: 20, color: `${CS.light1}99`, marginHorizontal: 3*vh}}>
-                                {hasTbaEvent.toString()}
-                            </Text>
-                            <View style={{margin: 1 * vh}}/>
-                            
-                            <TTButton
-                                text="Save Settings & Get Match Data"
-                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
-                                textStyle={{...globalTextStyles.secondaryText, fontSize: 24}}
-                                onPress={() => {
-                                    saveOtherSettings("");
-                                    }
-                                }
-                            />
-                            <TTButton
-                                text="Clear TBA Cache"
-                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
-                                textStyle={{...globalTextStyles.secondaryText, fontSize:24}}
-                                onPress={() => {
-                                    clearTBACache("");
-                                    }
-                                }
-                            />
-
-                        </View>
 
                     </View>)
                 }
@@ -371,6 +405,7 @@ const Settings = ({route, navigation}) => {
 
                         <View style={globalContainerStyles.columnContainer}>
 
+                        <View style={{margin: 1 * vh}}/>
                         <Text style={styles.sectionHeader}>
                             Connect to StorageBucket
                         </Text>                       
@@ -397,83 +432,72 @@ const Settings = ({route, navigation}) => {
                             
                         />
                         <View style={{margin: 1 * vh}}/>                        
-                        <Text style={styles.sectionHeader}>TBA Settings</Text>
-   
-                        <View style={{height: 46*vh, zIndex: 1}}>
-                            {/*TBA KEY*/}
-                            <View style={styles.rowAlignContainer}>
-                            <TTTextInput
-                                state={tbaKey}
-                                setState={setTBAKey}
-                                placeholder="Enter TBA Key"
-                                placeholderTextColor={`${CS.light1}50`}
-                                multiline={true}
-                                maxLength={65}
-                                numberOfLines={4}
-                                
-                                style={[
-                                    {...globalInputStyles.numberInput, width: "90%", height: 8*vh},
-                                    globalTextStyles.labelText
-                                ]}
-                            />
-                            </View>
-                            
-                            {/*Event KEY*/}
-                            <View style={styles.rowAlignContainer}>
-                            <TTTextInput
-                                state={eventKey}
-                                setState={setEventKey}
-                                placeholder="Enter Event Key"
-                                placeholderTextColor={`${CS.light1}50`}
-                                multiline={false}
-                                maxLength={50}
-                                numberOfLines={1}                          
-                                style={[
-                                    {...globalInputStyles.numberInput, width: "90%", height: 5*vh},
-                                    globalTextStyles.labelText
-                                ]}
-                            />
-                            </View>
-                            
-                            {/* Device */}
-                            <View style={{...styles.rowAlignContainer, zIndex: 6}}>
-                            <TTDropdown 
-                                state={device} 
-                                setState={setDevice} 
-                                items={deviceValues}
-                                boxWidth={40*vw}
-                                boxHeight={5*vh}
-                                boxStyle={globalInputStyles.dropdownInput}
-                                textStyle={globalTextStyles.labelText}
-                            />
-                            </View>
-                            <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
-                                Connected to TBA Match Data:
-                            </Text>
-                            <Text style={{...globalTextStyles.secondaryText, fontSize: 20, color: `${CS.light1}99`, marginHorizontal: 3*vh}}>
-                                {hasTbaEvent.toString()}
-                            </Text>
-                            
-                            <TTButton
-                                text="Save Settings & Get Match Data"
-                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
-                                textStyle={{...globalTextStyles.secondaryText, fontSize:24}}
-                                onPress={() => {
-                                    saveOtherSettings("");
-                                    }
-                                }
-                            />
-                            <TTButton
-                                text="Clear TBA Cache"
-                                buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}}
-                                textStyle={{...globalTextStyles.secondaryText, fontSize:24}}
-                                onPress={() => {
-                                    clearTBACache("");
-                                    }
-                                }
-                            />
+  
+                    </View>
+                    )
+                }
+                {
+                    otherSettings !== null && 
+                    (<View>
 
-                        </View>
+                        <View style={{margin: 1 * vh}}/>
+
+                        <Text style={{...globalTextStyles.secondaryText, fontSize: 24, marginHorizontal: 3*vh}}>
+                            Connected to TBA:
+                        </Text>
+                        <Text style={{...globalTextStyles.labelText, color: `${CS.light2}60`, marginHorizontal: 3*vh}}>
+                            EventKey: "{otherSettings.eventKey}"
+                        </Text>
+
+                        <View style={{margin: 1 * vh}}/>
+
+                        <TTButton 
+                            text="Disconnect" 
+                            onPress={() => {
+                                setConfirmationTBAContent([null, `Are you sure you want to disconnect from TBA? You won't be able to connect back without the QR code`, null, null]);
+                                setConfirmationTBAVisible(true);
+                            }}
+                            buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}} 
+                            textStyle={{...globalTextStyles.secondaryText, fontSize: 24}}
+                        />
+
+                        <View style={{margin: 1 * vh}}/>
+                    </View>)
+                }
+
+                {
+                    otherSettings === null &&
+                    (
+                        <View style={globalContainerStyles.columnContainer}>
+
+                        <View style={{margin: 1 * vh}}/>
+                        <Text style={styles.sectionHeader}>
+                            Connect to TBA
+                        </Text>                       
+                        <TTButton 
+                            text="Scan TBA QR Code" 
+                            onPress={() => {
+                                setConnectionTBAData("");
+                                setTBAScanned(false);
+                            }}
+                            buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}} 
+                            textStyle={globalTextStyles.secondaryText}
+                        />
+                        <Text style={{...globalTextStyles.labelText, fontSize: 18, color: CS.light1}}>
+                            Or
+                        </Text>
+                        <TTButton 
+                            text="Enter TBA Text" 
+                            onPress={() => {
+                                setConnectionTBAData("");
+                                setEnterTBATextVisible(true);
+                            }}
+                            buttonStyle={{...globalButtonStyles.secondaryButton, width: "80%"}} 
+                            textStyle={globalTextStyles.secondaryText}
+                            
+                        />
+                        <View style={{margin: 1 * vh}}/>                        
+  
                     </View>
                     )
                 }
@@ -509,6 +533,15 @@ const Settings = ({route, navigation}) => {
                 rejectText={confirmationContent[3]}
                 acceptCallback={deleteCallback}
             />
+             <TTConfirmation
+                state={confirmationTBAVisible}
+                setState={setConfirmationTBAVisible}
+                title={confirmationTBAContent[0]}
+                mainText={confirmationTBAContent[1]}
+                acceptText={confirmationTBAContent[2]}
+                rejectText={confirmationTBAContent[3]}
+                acceptCallback={deleteTBACache}
+            />           
             <TTPoll
                 state={enterPasswordVisible}
                 setState={setEnterPasswordVisible}
@@ -523,6 +556,41 @@ const Settings = ({route, navigation}) => {
                 maxLength={32}
                 enterCallback={() => {
                     connectFromData();
+                }}
+            />
+
+            <TTPoll
+                state={enterTBAPasswordVisible}
+                setState={setEnterTBAPasswordVisible}
+                title="Enter Password for TBA"
+                overrideTitleStyle={{fontSize: 30}}
+                mainText="Enter the TBA config password to connect (32 characters max)"
+                acceptText="Ok"
+                secureTextEntry={true}
+                textState={enteredTBAPassword}
+                setTextState={setEnteredTBAPassword}
+                overrideTextInputStyle={{...globalTextStyles.labelText, height: 8*vh}}
+                maxLength={32}
+                enterCallback={() => {
+                    connectFromTBAData();
+                }}
+            />
+            
+            <TTPoll
+                state={enterTBATextVisible}
+                setState={setEnterTBATextVisible}
+                title="Enter TBA Config Text"
+                overrideTitleStyle={{fontSize: 36}}
+                mainText="Paste in TBA Config text below"
+                acceptText="Ok"
+                multiline={true}
+                numberOfLines={1}
+                textState={connectionTBAData}
+                setTextState={setConnectionTBAData}
+                overrideTextInputStyle={{...globalTextStyles.labelText, height: 20*vh}}
+                enterCallback={() => {
+                    setEnteredTBAPassword("");
+                    setTimeout(() => {setEnterTBAPasswordVisible(true)}, 500)
                 }}
             />
 
@@ -545,9 +613,9 @@ const Settings = ({route, navigation}) => {
             />
 
             { !scanned && <BarCodeScannerLayout/> }
-            { scanned && <SettingsLayout/> }
-            
-            
+            { !tbaScanned && <BarCodeTBAScannerLayout/> }
+            { scanned && tbaScanned && <SettingsLayout/> }
+           
         </View>
     );
 }

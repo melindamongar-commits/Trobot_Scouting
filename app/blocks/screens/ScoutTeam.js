@@ -8,7 +8,7 @@ import { fU, vh, vw } from '../../common/Constants';
 import { globalButtonStyles, globalInputStyles, globalTextStyles, globalContainerStyles } from '../../common/GlobalStyleSheet';
 import { TTButton, TTCheckbox, TTPushButton, TTSimpleCheckbox } from '../components/ButtonComponents';
 import { TTCounterInput, TTDropdown, TTNumberInput, TTTextInput } from '../components/InputComponents';
-import { serializeData, deserializeData, compressData, decompressData, saveMatchData, loadMatchData,loadOtherSettings, loadTbaEventCache, loadMatchCache, saveMatchCache} from '../../common/LocalStorage'
+import { serializeData, deserializeData, compressData, decompressData, saveMatchData, loadDevice, loadMatchData,loadOtherSettings, loadTbaEventCache, loadMatchCache, saveMatchCache} from '../../common/LocalStorage'
 import { TTGradient } from '../components/ExtraComponents';
 import { ColorScheme as CS } from '../../common/ColorScheme';
 
@@ -170,10 +170,14 @@ const ScoutTeam = ({route, navigation}) => {
             //Get Other Settings used to pull TBA data and determine device
             const loadedOtherSettings = await loadOtherSettings();
             if(loadedOtherSettings){
-                setDevice(loadedOtherSettings.device);
-                setTeamColor(loadedOtherSettings.device.includes("Blue")?"Blue":"Red");
                 setEventKey(loadedOtherSettings.eventKey);
             };
+
+            const loadedDevice = await loadDevice();
+            if (loadedDevice) {
+                setTeamColor(loadedDevice.device.includes("Blue")?"Blue":"Red");
+                setDevice(loadedDevice.device);
+            }
             //GetMatchCache which stores the last match data
             const loadMatch = await loadMatchCache()
            
@@ -192,7 +196,7 @@ const ScoutTeam = ({route, navigation}) => {
             };
             //GetTBAEventMatchData to populate the team number
             const loadTbaEvent = await loadTbaEventCache();
-
+            //console.log(loadTbaEvent);
             if (loadTbaEvent) {
                 for (i = 0; i < JSON.parse(loadTbaEvent).length; i++) {
                     const data = JSON.parse(loadTbaEvent)[i];
@@ -210,7 +214,7 @@ const ScoutTeam = ({route, navigation}) => {
                         && mn == String(data.matchnumber)) {
 
                         var team = "";
-                        switch(loadedOtherSettings.device) {
+                        switch(loadedDevice.device) {
                             case "Blue3":
                                 team = data.blue3.replace("frc","");
                                 break;
