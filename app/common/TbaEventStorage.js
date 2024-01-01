@@ -43,7 +43,7 @@ const getTBAEventData = async (tbaKey, eventKey) => {
         //console.log(details);
         
         const responseData = JSON.stringify(details);
-        //console.log(responseData);
+       // console.log(responseData);
         return responseData;
         
     } catch(error) {
@@ -54,5 +54,5 @@ const getTBAEventData = async (tbaKey, eventKey) => {
 };
 
 export { 
-    getTBAEventData,
+    getTBAEventData
 };

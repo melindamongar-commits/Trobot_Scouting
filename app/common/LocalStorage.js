@@ -20,6 +20,7 @@ import { concurrency } from './Constants';
 
 // Constants
 const settingsKey = "@settingsKey";
+const deviceKey = "@DevicesKey";
 const otherSettingsKey = "@OtherSettingsKey";
 const cloudCacheKey = "@cloudCacheKey";
 const tbaEventCacheKey = "@tbaEventCacheKey";
@@ -132,6 +133,7 @@ const savePitData = async (data) => {
 
 // Reads the data stored at a key value. Returns false if there was an error, returns list of data otherwise.
 const loadPitData = async (key) => {
+    //console.log("PITDATA " + key);
     const data = await readData(key);
     if (data == false) {
         return null;
@@ -198,7 +200,18 @@ const loadSettings = async () => {
         return null;
     }
 }
+const loadDevice = async () => {
+    const loadedDevice = await readData(deviceKey);
+    if (!loadedDevice) return null;
 
+    // This probably shouldn't even include a try function because it shouldn't accept settings that don't parse correctly
+    try {
+        const parsedSettings = JSON.parse(loadedDevice);
+        return parsedSettings;
+    } catch (e) {
+        return null;
+    }
+}
 // Helper function to load other settings
 const loadOtherSettings = async () => {
     const loadedOtherSettings = await readData(otherSettingsKey);
@@ -273,6 +286,7 @@ const loadTbaEventCache = async () => {
 // Exports
 export { 
     settingsKey,
+    deviceKey,
     otherSettingsKey,
     matchCacheKey,
     tbaEventCacheKey,
@@ -287,6 +301,7 @@ export {
     decompressData,
     saveMatchData,
     loadMatchData,
+    loadDevice,
     deleteData,
     deleteMultipleDataKeys,
     removeNonMatchKeys,
@@ -301,4 +316,5 @@ export {
     saveMatchCache,
     savePitData,
     loadPitCache,
+    loadPitData,
 }

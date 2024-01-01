@@ -226,7 +226,7 @@ const PitScout = ({route, navigation}) =>
                     <TTGradient/>
                     <View style={styles.rowAlignContainer}>
                     <TTButton
-                        text="Upload Photo"
+                        text="Open Camera"
                         buttonStyle={{...globalButtonStyles.primaryButton, width: "90%", margin: 5*vh}}
                         textStyle={{...globalTextStyles.primaryText, fontSize: 36*fU}}
                         onPress={() => setUploadPhoto(true)}
