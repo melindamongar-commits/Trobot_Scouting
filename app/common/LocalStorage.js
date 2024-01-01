@@ -133,7 +133,7 @@ const savePitData = async (data) => {
 
 // Reads the data stored at a key value. Returns false if there was an error, returns list of data otherwise.
 const loadPitData = async (key) => {
-    console.log("PITDATA " + key);
+    //console.log("PITDATA " + key);
     const data = await readData(key);
     if (data == false) {
         return null;
@@ -262,7 +262,7 @@ const loadPitCache = async () => {
 
 // Helper function to save cloud cache
 const saveTbaEventCache = async (tbaData) => {
-    console.log(tbaData);
+    //console.log(tbaData);
     
     const stringData = JSON.stringify(tbaData);
     //console.log(stringData);

@@ -101,7 +101,7 @@ const Settings = ({route, navigation}) => {
                 if (loadTbaEvent !== null) {
                     //console.log(JSON.parse(loadTbaEvent));
                     if (JSON.parse(loadTbaEvent)[0].eventkey == loadedOtherSettings.eventKey){
-                        setHasTbaEvent(true);
+                        await setHasTbaEvent(true);
                     } 
                 }
             }
@@ -111,7 +111,7 @@ const Settings = ({route, navigation}) => {
 
         const loadDeviceSettingsToState = async () => {
             const deviceSettings = await loadDevice();
-            console.log(deviceSettings);
+            //console.log(deviceSettings);
             if (deviceSettings){
                 setDevice(deviceSettings.device);
             }
@@ -148,7 +148,7 @@ const Settings = ({route, navigation}) => {
         const deviceSettings = {
             device: device,
         };
-        console.log(deviceSettings);
+        //console.log(deviceSettings);
         writeData(JSON.stringify(deviceSettings), deviceKey);
     }
 
@@ -185,7 +185,7 @@ const Settings = ({route, navigation}) => {
 
             if (loadTbaEvent !== null) {      
                 if (JSON.parse(loadTbaEvent)[0].eventkey == eventKey){
-                    setHasTbaEvent(true);
+                    await setHasTbaEvent(true);
                 }
             } else {
                 setHasTbaEvent(false);
@@ -447,6 +447,9 @@ const Settings = ({route, navigation}) => {
                         </Text>
                         <Text style={{...globalTextStyles.labelText, color: `${CS.light2}60`, marginHorizontal: 3*vh}}>
                             EventKey: "{otherSettings.eventKey}"
+                        </Text>
+                        <Text style={{...globalTextStyles.labelText, color: `${CS.light2}60`, marginHorizontal: 3*vh}}>
+                            Has TBA Event Match Data: "{hasTbaEvent?`True`:`False`}"
                         </Text>
 
                         <View style={{margin: 1 * vh}}/>
