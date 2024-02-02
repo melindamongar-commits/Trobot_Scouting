@@ -290,7 +290,7 @@ const Settings = ({route, navigation}) => {
                             BarCodeScanner.Constants.BarCodeType.qr
                         ]
                     }}
-                    onBarCodeScanned={tbaScanned ? undefined : handleBarCodeTBAScanned}
+                    onBarCodeScanned={scanned ? undefined : handleBarCodeTBAScanned}
                 />
                 <TTButton 
                     text="Cancel" 

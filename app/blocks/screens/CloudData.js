@@ -367,8 +367,8 @@ const CloudData = ({route, navigation}) => {
                     <Text style={globalTextStyles.labelText}>Filter By Qualifier...</Text>
                     <TTButton 
                         text="+"
-                        buttonStyle={{...globalButtonStyles.primaryButton, width: 7*vh, aspectRatio: 1, margin: 2*vh}}
-                        textStyle={{color: CS.light1, fontSize: 32*fU, marginTop: (Platform.OS !== 'ios') ? -1.5*vh : -1.3*vh }}
+                        buttonStyle={{...globalButtonStyles.primaryButton, width: 5*vh, aspectRatio: 1, margin: 1*vh}}
+                        textStyle={{color: CS.light1, fontSize: 32*fU, marginTop: (Platform.OS !== 'ios') ? -1.5*vh : 0 }}
                         onPress={() => onPress(+1)} />
                     <TTNumberInput
                         state={filterBy}
@@ -386,8 +386,8 @@ const CloudData = ({route, navigation}) => {
                     />
                     <TTButton 
                         text="-"
-                        buttonStyle={{...globalButtonStyles.primaryButton, width: 7*vh, aspectRatio: 1, margin: 2*vh}}
-                        textStyle={{color: CS.light1, fontSize: 32*fU, marginTop: (Platform.OS !== 'ios') ? -1.5*vh : -1.3*vh  }}
+                        buttonStyle={{...globalButtonStyles.primaryButton, width: 5*vh, aspectRatio: 1, margin: 1*vh}}
+                        textStyle={{color: CS.light1, fontSize: 32*fU, marginTop: (Platform.OS !== 'ios') ? -1.5*vh : 0 }}
                         onPress={() => onPress(-1)} />
                 </View>
               
