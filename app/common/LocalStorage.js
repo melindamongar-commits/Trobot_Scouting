@@ -92,9 +92,28 @@ const readMultipleDataKeys = async (keys) => {
     }
 }
 
-
 // Deletes a key. Returns false if there was an error, returns true otherwise
 const deleteData = async (key) => {
+    if (key.slice(0, 3) == "@PD"){
+        try {
+            const data = await loadPitData(key);
+            
+            if (data !== null) {
+                if (data[5].length > 0) {
+                    const photos = data[5].toString().split(",");
+                    
+                    photos.map((photo) => {
+                        FileSystem.deleteAsync(photo);
+                    })
+                }
+                console.log(data);
+            }
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
+
     try {
         await AsyncStorage.removeItem(key);
         return true;
