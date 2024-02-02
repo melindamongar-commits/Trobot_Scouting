@@ -227,8 +227,8 @@ const PitScout = ({route, navigation}) =>
                     <View style={styles.rowAlignContainer}>
                     <TTButton
                         text="Open Camera"
-                        buttonStyle={{...globalButtonStyles.secondaryButton, width: "100%"}} 
-                        textStyle={globalTextStyles.secondaryText}
+                        buttonStyle={{...globalButtonStyles.primaryButton, width: "90%", margin: 5*vh}}
+                        textStyle={{...globalTextStyles.primaryText, fontSize: 36*fU}}
                         onPress={() => setUploadPhoto(true)}
                     />
                     </View>
@@ -240,15 +240,15 @@ const PitScout = ({route, navigation}) =>
                     </View>
                     <View style={styles.rowAlignContainer}>
                     <TTButton 
-                        text="<" 
+                        text=" < " 
                         onPress={() => {setPhotoIndex(photoIndex - 1);}}
-                        buttonStyle={{...globalButtonStyles.secondaryButton, width: "45%", margin: 3*vh}} 
+                        buttonStyle={{...globalButtonStyles.secondaryButton, width: "25", margin: 3*vh}} 
                         textStyle={globalTextStyles.secondaryText}
                     />
                     <TTButton 
-                        text=">" 
+                        text=" > " 
                         onPress={() => {setPhotoIndex(photoIndex + 1);}}
-                        buttonStyle={{...globalButtonStyles.secondaryButton, width: "45%", margin: 3*vh}} 
+                        buttonStyle={{...globalButtonStyles.secondaryButton, width: "20", margin: 3*vh}} 
                         textStyle={globalTextStyles.secondaryText}
                     />
                     </View>
