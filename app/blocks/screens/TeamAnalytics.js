@@ -235,7 +235,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         source={{uri:getImage(imageName, firebaseURL, subpath)}}
                     />
                     
-                    <Text style={styles.dataText}></Text>
+                    <View style={{margin: 2*vh}}></View>
                     </View>
                 );
             })}
