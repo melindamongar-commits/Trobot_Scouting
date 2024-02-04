@@ -161,7 +161,7 @@ const PitScout = ({route, navigation}) =>
     const handlePhoto = async () => {
         const photo = await ref.current.takePictureAsync();
 
-        console.log(photo.uri);
+        //console.log(photo.uri);
         const photopath = photo.uri;
 
         setPhotos([
