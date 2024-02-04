@@ -390,18 +390,16 @@ const ScoutTeam = ({route, navigation}) => {
                 AUTO 
                 
                 */}
-                <View style={{height: 95*vh}}>
+                <View style={{height: 85*vh}}>
                     <TTGradient/>
 
-                    {/* Might also make title a block (?) */}
                     <Text style={styles.sectionHeader}>Auto</Text>
                     
                     <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
-                        {/* Column for cube and cone high, middle, and low */}
                         <View style={{...globalContainerStyles.columnContainer, flexGrow: 3}}>
-                            {/* Cubes */}
+                            {/* speaker */}
                             <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
-                                <View style={globalContainerStyles.columnContainer}>
+                            <View style={globalContainerStyles.columnContainer}>
                                     <Text style={styles.counterHeader}>Speaker </Text>
                                     <TTCounterInput
                                         state={autoPoints.speaker}
@@ -409,7 +407,6 @@ const ScoutTeam = ({route, navigation}) => {
                                         {...cubeCounterSettings}
                                     />
                                 </View>
-
                                 <View style={globalContainerStyles.columnContainer}>
                                     <Text style={styles.counterHeader}>Speaker Misses</Text>
                                     <TTCounterInput
@@ -417,24 +414,21 @@ const ScoutTeam = ({route, navigation}) => {
                                         setState={(v) => setAutoPointParam("speakermiss", v)}
                                         {...cubeCounterSettings}
                                     />
-                                    
                                 </View>
-
                                 <View style={globalContainerStyles.columnContainer}>
-                                <TTSimpleCheckbox 
-                                    state={leave}
-                                    setState={setLeave}
-                                    text="Leave?    " 
-                                    overallStyle={{height: "100%", alignSelf: "center"}}
-                                    textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
-                                    boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
-                                    boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                                />
+                                    <TTSimpleCheckbox 
+                                        state={leave}
+                                        setState={setLeave}
+                                        text="Leave?    " 
+                                        overallStyle={{height: "100%", alignSelf: "center"}}
+                                        textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
+                                        boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
+                                        boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
+                                    />
                                 </View>
-
-                                </View>
-                                {/* Cones */}
-                                <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
+                            </View>
+                            {/* amp */}
+                            <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
                                 <View style={globalContainerStyles.columnContainer}>
                                     <Text style={styles.counterHeader}>Amp</Text>
                                     <TTCounterInput
@@ -452,45 +446,19 @@ const ScoutTeam = ({route, navigation}) => {
                                     />
                                 </View>
                                 <View style={globalContainerStyles.columnContainer}>
-                                <TTSimpleCheckbox 
-                                    state={centerlineNoteScored}
-                                    setState={setCenterlineNoteScored}
-                                    text="Center Note?    " 
-                                    overallStyle={{height: "100%", alignSelf: "center"}}
-                                    textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
-                                    boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
-                                    boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                                />
-                                </View>
+                                    <TTSimpleCheckbox 
+                                        state={centerlineNoteScored}
+                                        setState={setCenterlineNoteScored}
+                                        text="Center Note Scored?" 
+                                        overallStyle={{height: "100%", alignSelf: "center"}}
+                                        textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
+                                        boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
+                                        boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
+                                    />
                                 </View>
                             </View>
                         </View>
-
-                     {/*<View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>*/}
-                        {/* Taxi */}
-            
-                        {/* Docked 
-                        <TTSimpleCheckbox 
-                            state={autoDocked}
-                            setState={setAutoDocked}
-                            text="Docked?" 
-                            overallStyle={{height: "100%", alignSelf: "center"}}
-                            textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
-                            boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
-                            boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                        />*/}
-                        {/* Engaged 
-                        <TTSimpleCheckbox 
-                            state={autoEngaged}
-                            setState={setAutoEngaged}
-                            text="Engaged?" 
-                            overallStyle={{height: "100%", alignSelf: "center"}}
-                            textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
-                            boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
-                            boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                        />*/}
-                    {/*</View>*/}
-                    <View style={{marginBottom: 2*vh}}/> 
+                    </View>
                 </View>
 
                 {/* 
@@ -504,9 +472,8 @@ const ScoutTeam = ({route, navigation}) => {
                     <Text style={styles.sectionHeader}>Teleop</Text>
                     
                     <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
-                        {/* Column for cube and cone high, middle, and low */}
                         <View style={{...globalContainerStyles.columnContainer, flexGrow: 3}}>
-                            {/* Cubes */}
+                            {/* speaker */}
                             <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
                                 <View style={globalContainerStyles.columnContainer}>
                                     <Text style={styles.counterHeader}>Speaker</Text>
@@ -516,7 +483,6 @@ const ScoutTeam = ({route, navigation}) => {
                                         {...cubeCounterSettings}
                                     />
                                 </View>
-
                                 <View style={globalContainerStyles.columnContainer}>
                                     <Text style={styles.counterHeader}>Amplified Speaker</Text>
                                     <TTCounterInput
@@ -525,7 +491,6 @@ const ScoutTeam = ({route, navigation}) => {
                                         {...cubeCounterSettings}
                                     />
                                 </View>
-
                                 <View style={globalContainerStyles.columnContainer}>
                                     <Text style={styles.counterHeader}>Speaker Misses</Text>
                                     <TTCounterInput
@@ -535,7 +500,7 @@ const ScoutTeam = ({route, navigation}) => {
                                     />
                                 </View>
                             </View>
-                            {/* Cones */}
+                            {/* amp */}
                             <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
                                 <View style={globalContainerStyles.columnContainer}>
                                     <Text style={styles.counterHeader}>Amp</Text>
@@ -554,7 +519,6 @@ const ScoutTeam = ({route, navigation}) => {
                                     />
                                 </View>
                                 <View style={globalContainerStyles.columnContainer}>
-
                                 </View>
                             </View>
                         </View>

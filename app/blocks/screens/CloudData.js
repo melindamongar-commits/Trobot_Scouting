@@ -14,8 +14,8 @@ import { loadCloudCache, loadPitCache, loadSettings, saveCloudCache, savePitCach
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTDropdown, TTCounterInput, TTNumberInput } from '../components/InputComponents';
 
-const sortableValues = ["Team Number", "Total Points","Auto Points", "Teleop Points", "Misses","Speaker", "Amp", "Climb"];
-const sortableKeys = [null, "total","auto", "teleop", "misses", "speaker", "amp", "climb"];
+const sortableValues = ["Team Number", "Total Points","Auto Points", "Teleop Points", "Misses", "Speaker", "Amp", "Endgame Points"];
+const sortableKeys = [null, "total","auto", "teleop", "misses", "speaker", "amp", "endgame"];
 
 // Main function
 const CloudData = ({route, navigation}) => {
@@ -62,12 +62,12 @@ const CloudData = ({route, navigation}) => {
         // Loop over every team
         for (const teamNumber of Object.keys(teamData)) {
             
-            const averages = { total: 0, auto: 0, teleop: 0, misses: 0, speaker: 0, amp: 0, climb: 0 };
+            const averages = { total: 0, auto: 0, teleop: 0, misses: 0, speaker: 0, amp: 0, endgame: 0 };
             const count = teamData[teamNumber].length;
             // For every md (match data), add to the average for each stat
 
             for (const md of teamData[teamNumber]) {
-      
+                //console.log(md);
                 // This is horrible
                 averages.total += 2*Number(md[11]) + 5*Number(md[9])+ 2*Number(md[7])
                 + 1*Number(md[16]) + 2*Number(md[13])+ 5*Number(md[14])
@@ -77,8 +77,10 @@ const CloudData = ({route, navigation}) => {
                 averages.misses += Number(md[15]) + Number(md[17])+ Number(md[12]) + Number(md[10]);
                 averages.speaker += Number(md[9])+Number(md[13])+Number(md[14]);
                 averages.amp += Number(md[11])+Number(md[16]);
-                averages.climb += 5*Number(md[18]) + getClimbScore(Number(md[19]));
+                averages.endgame += 5*Number(md[18]) + getClimbScore(Number(md[19]));
+                //console.log(averages.auto);
             }
+            //console.log(averages);
             // Average out and round
             averages.total = Math.round(10*averages.total / count) / 10;
             averages.auto = Math.round(10*averages.auto / count) / 10;
@@ -86,7 +88,7 @@ const CloudData = ({route, navigation}) => {
             averages.misses = Math.round(10*averages.misses / count) / 10;
             averages.speaker = Math.round(10*averages.speaker / count) / 10;
             averages.amp = Math.round(10*averages.amp / count) / 10;
-            averages.climb = Math.round(10*averages.climb / count) / 10;
+            averages.endgame = Math.round(10*averages.endgame / count) / 10;
 
             teamAverages[teamNumber] = averages;
             }
@@ -292,15 +294,15 @@ const CloudData = ({route, navigation}) => {
                         </Text>
                     </View>
                     <View>
-                        <Text style={topLabelStyle}>Misses</Text>
+                        <Text style={topLabelStyle}>Endgame</Text>
                         <Text style={bottomLabelStyle}>
-                            {statistics[props.teamNumber]?.misses}
+                            {statistics[props.teamNumber]?.endgame}
                         </Text>
                     </View>
                     <View>
-                        <Text style={topLabelStyle}>Climb</Text>
+                        <Text style={topLabelStyle}>Misses</Text>
                         <Text style={bottomLabelStyle}>
-                            {statistics[props.teamNumber]?.climb}
+                            {statistics[props.teamNumber]?.misses}
                         </Text>
                     </View>
                 </View>

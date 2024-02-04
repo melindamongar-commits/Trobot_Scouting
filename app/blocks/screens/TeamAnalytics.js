@@ -11,7 +11,7 @@ import { TTGradient } from '../components/ExtraComponents';
 import { TTDropdown } from '../components/InputComponents';
 import { matchTypeValues, teamColorValues,stageValues } from './ScoutTeam';
 
-const chartableValues = ["Auto Points", "Teleop Points", "Speaker", "Amp", "Misses", "Stage/Climb"];
+const chartableValues = ["Auto Points", "Teleop Points", "Speaker", "Amp", "Misses", "Endgame Points"];
 
 const TeamAnalytics = ({route, navigation}) => {
 
@@ -110,7 +110,7 @@ const TeamAnalytics = ({route, navigation}) => {
                 });
                 return count;
             } break;
-            case ("Stage/Climb"): {
+            case ("Endgame Points"): {
                 const count = route.params.teamData.map((md) => {
                     return 5*Number(md[18]) + getClimbScore(Number(md[19]));
                 });
@@ -176,7 +176,7 @@ const TeamAnalytics = ({route, navigation}) => {
 
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Speaker-<Text style={styles.dataText}>{props.matchData[13]}</Text></Text>
-                        <Text style={styles.dataLabel}>Amp Speaker-<Text style={styles.dataText}>{props.matchData[14]}</Text></Text>
+                        <Text style={styles.dataLabel}>AmpSpeaker-<Text style={styles.dataText}>{props.matchData[14]}</Text></Text>
                         <Text style={styles.dataLabel}>Speaker Misses-<Text style={styles.dataText}>{props.matchData[15]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
@@ -239,7 +239,7 @@ const TeamAnalytics = ({route, navigation}) => {
                     </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Human Player-<Text style={styles.dataText}>{props.pitData[9]}</Text></Text>
-                        <Text style={styles.dataLabel}>Stage/Climb-<Text style={styles.dataText}>{props.pitData[11]}</Text></Text>
+                        <Text style={styles.dataLabel}>EndGame-<Text style={styles.dataText}>{props.pitData[11]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Under Stage-<Text style={styles.dataText}>{props.pitData[10] == 1 ? "Yes" : "No"}</Text></Text>
@@ -371,8 +371,8 @@ const TeamAnalytics = ({route, navigation}) => {
                             <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.misses}</Text>
                         </View>
                         <View style={{...styles.columnContainer, alignItems: "center"}}>
-                            <Text style={styles.statHeader}>Stage/Climb</Text>
-                            <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.climb}</Text>
+                            <Text style={styles.statHeader}>Endgame Avg</Text>
+                            <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.endgame}</Text>
                         </View>
                     </View>
                     <View style={{margin: 2*vh}}/>
