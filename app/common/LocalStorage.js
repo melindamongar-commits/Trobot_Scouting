@@ -101,8 +101,8 @@ const deleteData = async (key) => {
             const data = await loadPitData(key);
             
             if (data !== null) {
-                if (data[5].length > 0) {
-                    const photos = data[5].toString().split(",");
+                if (data[16].length > 0) {
+                    const photos = data[16].toString().split(",");
                     
                     photos.map((photo) => {
                         FileSystem.deleteAsync(photo);
