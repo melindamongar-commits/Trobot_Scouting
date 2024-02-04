@@ -15,6 +15,7 @@ import { ColorScheme as CS } from '../../common/ColorScheme';
 const matchTypeValues = ["Practice", "Qualifiers", "Finals"];
 const teamColorValues = ["Red", "Blue"];
 const deviceValues = ["Blue1","Blue2","Blue3","Red1","Red2","Red3"];
+const stageValues = ["None","Park","Onstage","Onstage Buddy"];
 
 // Main function
 const ScoutTeam = ({route, navigation}) => {
@@ -28,36 +29,43 @@ const ScoutTeam = ({route, navigation}) => {
     const [matchType, setMatchType] = React.useState("Match Type");
     const [teamColor, setTeamColor] = React.useState("Team Color");
 
-    const [taxi, setTaxi] = React.useState(false);
-    const [autoDocked, setAutoDocked] = React.useState(false);
-    const [autoEngaged, setAutoEngaged] = React.useState(false);
+    const [leave, setLeave] = React.useState(false);
+    const [centerlineNoteScored, setCenterlineNoteScored] = React.useState(false);
+   
     const [autoPoints, setAutoPoints] = React.useState({
-        cubeHigh: "0", cubeMid: "0", cubeLow: "0", 
-        coneHigh: "0", coneMid: "0", coneLow: "0", 
-        misses: "0",
+        speaker: "0", 
+        amp: "0", 
+        speakermiss: "0", 
+        ampmiss: "0"
     });
+
     const setAutoPointParam = (parameter, value) => {
         const temp = {...autoPoints};
         temp[parameter] = value;
         setAutoPoints(temp);
-    }
+    };
 
     const [telePoints, setTelePoints] = React.useState({
-        cubeHigh: "0", cubeMid: "0", cubeLow: "0", 
-        coneHigh: "0", coneMid: "0", coneLow: "0", 
-        misses: "0",
+        speaker: "0", 
+        amp: "0", 
+        amplifiedSpeaker: "0",
+        speakermiss: "0", 
+        ampmiss: "0"
     });
+
     const setTelePointParam = (parameter, value) => {
         const temp = {...telePoints};
         temp[parameter] = value;
         setTelePoints(temp);
     }
     
-    const [teleParked, setTeleParked] = React.useState(false);
-    const [teleDocked, setTeleDocked] = React.useState(false);
-    const [teleEngaged, setTeleEngaged] = React.useState(false);
-    const [comments, setComments] = React.useState("");
+    const [trap, setTrap] = React.useState(false);
+    const [noteStuck, setNoteStuck] = React.useState(false);
+    const [broke, setBroke] = React.useState(false);
+
+    const [stage, setStage] = React.useState("Stage Climb");
     const [eventKey, setEventKey] = React.useState("");
+    const [comments, setComments] = React.useState("");
 
 
     // Prevents nothing entries
@@ -80,32 +88,28 @@ const ScoutTeam = ({route, navigation}) => {
             teamColor != "Team Color" ? (device.includes("Blue")?"Blue":"Red") : 0, //6
 
             // Auto
-            taxi ? 1 : 0, //7
-            autoDocked ? 1 : 0, //8
-            autoEngaged ? 1 : 0, //9
-            formatNumericState(autoPoints.cubeHigh), //10
-            formatNumericState(autoPoints.cubeMid), //11
-            formatNumericState(autoPoints.cubeLow), //12
-            formatNumericState(autoPoints.coneHigh), //13
-            formatNumericState(autoPoints.coneMid), //14
-            formatNumericState(autoPoints.coneLow), //15
-            formatNumericState(autoPoints.misses), //16
+            leave ? 1 : 0, //7
+            centerlineNoteScored?1:0, //8
+            formatNumericState(autoPoints.speaker), //9
+            formatNumericState(autoPoints.speakermiss), //10
+            formatNumericState(autoPoints.amp), //11
+            formatNumericState(autoPoints.ampmiss), //12
 
             // Teleop
-            formatNumericState(telePoints.cubeHigh), //17
-            formatNumericState(telePoints.cubeMid), //18
-            formatNumericState(telePoints.cubeLow), //19
-            formatNumericState(telePoints.coneHigh), //20
-            formatNumericState(telePoints.coneMid), //21
-            formatNumericState(telePoints.coneLow), //22
-            formatNumericState(telePoints.misses), //23
-            teleParked ? 1 : 0, //24
-            teleDocked ? 1 : 0, //25
-            teleEngaged ? 1 : 0, //26
+            formatNumericState(telePoints.speaker), //13
+            formatNumericState(telePoints.amplifiedSpeaker), //14
+            formatNumericState(telePoints.speakermiss), //15
+            formatNumericState(telePoints.amp), //16
+            formatNumericState(telePoints.ampmiss), //17
+
+            trap ? 1 : 0, //18
+            stage != "Stage" ? stageValues.indexOf(stage) : 1, //19
+            broke ? 1 : 0, //20
+            noteStuck ? 1 : 0, //21
 
             // After Round
-            eventKey, //27
-            comments, //28
+            eventKey, //22
+            comments, //23
         ];
 
         const matchCache = {
@@ -135,32 +139,30 @@ const ScoutTeam = ({route, navigation}) => {
         setTeamColor(teamColorValues[data[6]]);
 
         // Auto
-        setTaxi(Number(data[7]) ? true : false);
-        setAutoDocked(Number(data[8]) ? true : false);
-        setAutoEngaged(Number(data[9]) ? true : false);
+        setLeave(Number(data[7]) ? true : false);
+        setCenterlineNoteScored(Number(data[8]) ? true : false);
         const autoPoints = {
-            cubeHigh: data[10], cubeMid: data[11], cubeLow: data[12],
-            coneHigh: data[13], coneMid: data[14], coneLow: data[15],
-            misses: data[16],
+            speaker: data[9], speakermiss: data[10], 
+            amp: data[11], ampmiss: data[12]
         }
         setAutoPoints(autoPoints);
 
         // Teleop
         const telePoints = {
-            cubeHigh: data[17], cubeMid: data[18], cubeLow: data[19],
-            coneHigh: data[20], coneMid: data[21], coneLow: data[22],
-            misses: data[23],
+            speaker: data[13], amplifiedSpeaker: data[14], speakermiss: data[15],
+            amp: data[16], ampmiss: data[17]
         }
         setTelePoints(telePoints);
         
-        setTeleParked(Number(data[24]) ? true : false);
-        setTeleDocked(Number(data[25]) ? true : false);
-        setTeleEngaged(Number(data[26]) ? true : false);
+        setTrap(Number(data[18]) ? true : false);
+        setStage(stageValues[data[19]]);
+        setBroke(Number(data[20]) ? true : false);
+        setNoteStuck(Number(data[21]) ? true : false);
 
         // After Round
         
-        setEventKey(data[27]);
-        setComments(data[28]);
+        setEventKey(data[22]);
+        setComments(data[23]);
     }
     
 
@@ -170,13 +172,17 @@ const ScoutTeam = ({route, navigation}) => {
             //Get Other Settings used to pull TBA data and determine device
             const loadedOtherSettings = await loadOtherSettings();
             if(loadedOtherSettings){
-                setEventKey(loadedOtherSettings.eventKey);
+                if(loadedOtherSettings.eventKey){
+                    setEventKey(loadedOtherSettings.eventKey);
+                }
             };
 
             const loadedDevice = await loadDevice();
             if (loadedDevice) {
-                setTeamColor(loadedDevice.device.includes("Blue")?"Blue":"Red");
-                setDevice(loadedDevice.device);
+                if(loadedDevice.device){
+                    setTeamColor(loadedDevice.device.includes("Blue")?"Blue":"Red");
+                    setDevice(loadedDevice.device);
+                }
             }
             //GetMatchCache which stores the last match data
             const loadMatch = await loadMatchCache()
@@ -374,21 +380,7 @@ const ScoutTeam = ({route, navigation}) => {
                             style={styles.topNumberInput}
                         />
                     </View>
-                    {/* <View style={{...styles.rowAlignContainer, zIndex: 5}}>
-                        <Text style={ globalTextStyles.labelText }>
-                            Team Color:
-                        </Text> */}
-                        {/* Team Color */}
-                        {/* <TTDropdown 
-                            state={teamColor} 
-                            setState={setTeamColor} 
-                            items={teamColorValues}
-                            boxWidth={40*vw}
-                            boxHeight={5*vh}
-                            boxStyle={globalInputStyles.dropdownInput}
-                            textStyle={globalTextStyles.labelText}
-                        />
-                    </View> */}
+
                     {/* Rudamentary spacer */}
                     <View style={{marginBottom: 5*vh}}/> 
                 </View>
@@ -410,83 +402,74 @@ const ScoutTeam = ({route, navigation}) => {
                             {/* Cubes */}
                             <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cube High</Text>
+                                    <Text style={styles.counterHeader}>Speaker </Text>
                                     <TTCounterInput
-                                        state={autoPoints.cubeHigh}
-                                        setState={(v) => setAutoPointParam("cubeHigh", v)}
+                                        state={autoPoints.speaker}
+                                        setState={(v) => setAutoPointParam("speaker", v)}
                                         {...cubeCounterSettings}
                                     />
                                 </View>
 
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cube Mid</Text>
+                                    <Text style={styles.counterHeader}>Speaker Misses</Text>
                                     <TTCounterInput
-                                        state={autoPoints.cubeMid}
-                                        setState={(v) => setAutoPointParam("cubeMid", v)}
+                                        state={autoPoints.speakermiss}
+                                        setState={(v) => setAutoPointParam("speakermiss", v)}
                                         {...cubeCounterSettings}
                                     />
+                                    
                                 </View>
 
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cube Low</Text>
-                                    <TTCounterInput
-                                        state={autoPoints.cubeLow}
-                                        setState={(v) => setAutoPointParam("cubeLow", v)}
-                                        {...cubeCounterSettings}
-                                    />
+                                <TTSimpleCheckbox 
+                                    state={leave}
+                                    setState={setLeave}
+                                    text="Leave?    " 
+                                    overallStyle={{height: "100%", alignSelf: "center"}}
+                                    textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
+                                    boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
+                                    boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
+                                />
                                 </View>
-                            </View>
-                            {/* Cones */}
-                            <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
+
+                                </View>
+                                {/* Cones */}
+                                <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cone High</Text>
+                                    <Text style={styles.counterHeader}>Amp</Text>
                                     <TTCounterInput
-                                        state={autoPoints.coneHigh}
-                                        setState={(v) => setAutoPointParam("coneHigh", v)}
+                                        state={autoPoints.amp}
+                                        setState={(v) => setAutoPointParam("amp", v)}
                                         {...coneCounterSettings}
                                     />
                                 </View>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cone Mid</Text>
+                                    <Text style={styles.counterHeader}>Amp Misses</Text>
                                     <TTCounterInput
-                                        state={autoPoints.coneMid}
-                                        setState={(v) => setAutoPointParam("coneMid", v)}
+                                        state={autoPoints.ampmiss}
+                                        setState={(v) => setAutoPointParam("ampmiss", v)}
                                         {...coneCounterSettings}
                                     />
                                 </View>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cone Low</Text>
-                                    <TTCounterInput
-                                        state={autoPoints.coneLow}
-                                        setState={(v) => setAutoPointParam("coneLow", v)}
-                                        {...coneCounterSettings}
-                                    />
+                                <TTSimpleCheckbox 
+                                    state={centerlineNoteScored}
+                                    setState={setCenterlineNoteScored}
+                                    text="Center Note?    " 
+                                    overallStyle={{height: "100%", alignSelf: "center"}}
+                                    textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
+                                    boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
+                                    boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
+                                />
+                                </View>
                                 </View>
                             </View>
                         </View>
-                        {/* Misses */}
-                        <View style={globalContainerStyles.columnContainer}>
-                            <Text style={styles.counterHeader}>Misses</Text>
-                            <TTCounterInput
-                                state={autoPoints.misses}
-                                setState={(v) => setAutoPointParam("misses", v)}
-                                {...counterSettings}
-                            />
-                        </View>
-                    </View>
 
-                    <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
+                     {/*<View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>*/}
                         {/* Taxi */}
-                        <TTSimpleCheckbox 
-                            state={taxi}
-                            setState={setTaxi}
-                            text="Mobility?" 
-                            overallStyle={{height: "100%", alignSelf: "center"}}
-                            textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
-                            boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
-                            boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                        />
-                        {/* Docked */}
+            
+                        {/* Docked 
                         <TTSimpleCheckbox 
                             state={autoDocked}
                             setState={setAutoDocked}
@@ -495,8 +478,8 @@ const ScoutTeam = ({route, navigation}) => {
                             textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
                             boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
                             boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                        />
-                        {/* Engaged */}
+                        />*/}
+                        {/* Engaged 
                         <TTSimpleCheckbox 
                             state={autoEngaged}
                             setState={setAutoEngaged}
@@ -505,8 +488,8 @@ const ScoutTeam = ({route, navigation}) => {
                             textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
                             boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
                             boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                        />
-                    </View>
+                        />*/}
+                    {/*</View>*/}
                     <View style={{marginBottom: 2*vh}}/> 
                 </View>
 
@@ -526,28 +509,28 @@ const ScoutTeam = ({route, navigation}) => {
                             {/* Cubes */}
                             <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cube High</Text>
+                                    <Text style={styles.counterHeader}>Speaker</Text>
                                     <TTCounterInput
-                                        state={telePoints.cubeHigh}
-                                        setState={(v) => setTelePointParam("cubeHigh", v)}
+                                        state={telePoints.speaker}
+                                        setState={(v) => setTelePointParam("speaker", v)}
                                         {...cubeCounterSettings}
                                     />
                                 </View>
 
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cube Mid</Text>
+                                    <Text style={styles.counterHeader}>Amplified Speaker</Text>
                                     <TTCounterInput
-                                        state={telePoints.cubeMid}
-                                        setState={(v) => setTelePointParam("cubeMid", v)}
+                                        state={telePoints.amplifiedSpeaker}
+                                        setState={(v) => setTelePointParam("amplifiedSpeaker", v)}
                                         {...cubeCounterSettings}
                                     />
                                 </View>
 
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cube Low</Text>
+                                    <Text style={styles.counterHeader}>Speaker Misses</Text>
                                     <TTCounterInput
-                                        state={telePoints.cubeLow}
-                                        setState={(v) => setTelePointParam("cubeLow", v)}
+                                        state={telePoints.speakermiss}
+                                        setState={(v) => setTelePointParam("speakermiss", v)}
                                         {...cubeCounterSettings}
                                     />
                                 </View>
@@ -555,39 +538,25 @@ const ScoutTeam = ({route, navigation}) => {
                             {/* Cones */}
                             <View style={{...styles.rowAlignContainer, flexGrow: 1}}>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cone High</Text>
+                                    <Text style={styles.counterHeader}>Amp</Text>
                                     <TTCounterInput
-                                        state={telePoints.coneHigh}
-                                        setState={(v) => setTelePointParam("coneHigh", v)}
+                                        state={telePoints.amp}
+                                        setState={(v) => setTelePointParam("amp", v)}
                                         {...coneCounterSettings}
                                     />
                                 </View>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cone Mid</Text>
+                                    <Text style={styles.counterHeader}>Amp Misses</Text>
                                     <TTCounterInput
-                                        state={telePoints.coneMid}
-                                        setState={(v) => setTelePointParam("coneMid", v)}
+                                        state={telePoints.ampmiss}
+                                        setState={(v) => setTelePointParam("ampmiss", v)}
                                         {...coneCounterSettings}
                                     />
                                 </View>
                                 <View style={globalContainerStyles.columnContainer}>
-                                    <Text style={styles.counterHeader}>Cone Low</Text>
-                                    <TTCounterInput
-                                        state={telePoints.coneLow}
-                                        setState={(v) => setTelePointParam("coneLow", v)}
-                                        {...coneCounterSettings}
-                                    />
+
                                 </View>
                             </View>
-                        </View>
-                        {/* Misses */}
-                        <View style={globalContainerStyles.columnContainer}>
-                            <Text style={styles.counterHeader}>Misses</Text>
-                            <TTCounterInput
-                                state={telePoints.misses}
-                                setState={(v) => setTelePointParam("misses", v)}
-                                {...counterSettings}
-                            />
                         </View>
                     </View>
                 </View>
@@ -603,36 +572,52 @@ const ScoutTeam = ({route, navigation}) => {
                     <Text style={styles.sectionHeader}>Endgame</Text>
                     
                     <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
-                        <TTSimpleCheckbox 
-                            state={teleParked}
-                            setState={setTeleParked}
-                            text="Parked?" 
+                       
+                     <TTSimpleCheckbox 
+                            state={trap}
+                            setState={setTrap}
+                            text="Trap?" 
+                            overallStyle={{height: "100%", alignSelf: "center"}}
+                            textStyle={{...globalTextStyles.labelText}}
+                            boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
+                            boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
+                        />
+                        <TTDropdown 
+                            state={stage} 
+                            setState={setStage} 
+                            items={stageValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={5}
+                        />
+
+                    </View>
+                    <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
+                       
+                     <TTSimpleCheckbox 
+                            state={broke}
+                            setState={setBroke}
+                            text="Broke?" 
                             overallStyle={{height: "100%", alignSelf: "center"}}
                             textStyle={{...globalTextStyles.labelText}}
                             boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
                             boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
                         />
                         <TTSimpleCheckbox 
-                            state={teleDocked}
-                            setState={setTeleDocked}
-                            text="Docked?" 
+                            state={noteStuck}
+                            setState={setNoteStuck}
+                            text="Note Stuck?" 
                             overallStyle={{height: "100%", alignSelf: "center"}}
                             textStyle={{...globalTextStyles.labelText}}
                             boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
                             boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
                         />
-                        <TTSimpleCheckbox 
-                            state={teleEngaged}
-                            setState={setTeleEngaged}
-                            text="Engaged?" 
-                            overallStyle={{height: "100%", alignSelf: "center"}}
-                            textStyle={{...globalTextStyles.labelText}}
-                            boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
-                            boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
-                        />
+
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <TTTextInput
+                         <TTTextInput
                             state={comments}
                             setState={setComments}
                             placeholder="Comments (50 characters)"
@@ -644,12 +629,12 @@ const ScoutTeam = ({route, navigation}) => {
                             style={[
                                 {...globalInputStyles.numberInput, width: "90%", height: "90%"},
                                 globalTextStyles.labelText
-                            ]}
+                            ]} 
                         />
                     </View>
 
                     {/* Rudamentary spacer */}
-                    <View style={{marginBottom: 5*vh}}/> 
+                    {/*<View style={{marginBottom: 5*vh}}/> */}
                 </View>
                 
                 <View style={{...globalContainerStyles.centerContainer, backgroundColor: "#00000000"}}>
@@ -699,4 +684,4 @@ const styles = StyleSheet.create({
 // Exports
 export default ScoutTeam;
 
-export { matchTypeValues, teamColorValues, deviceValues, styles };
+export { matchTypeValues, teamColorValues, deviceValues,stageValues, styles };
