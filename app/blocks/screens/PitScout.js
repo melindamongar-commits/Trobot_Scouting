@@ -16,13 +16,30 @@ import { ColorScheme as CS } from '../../common/ColorScheme';
 
 // Main function
 const PitScout = ({route, navigation}) =>
-{
-    // Might be good to make some of these into arrays
-    
+{    
     const [scouterName, setScouterName] = React.useState("");
     const [teamNumber, setTeamNumber] = React.useState("");
+    const [driveTrain, setDriveTrain] = React.useState("Drive Train");
+    const driveTrainValues = ["Swerve", "Tank", "Other"];
+    const [motors, setMotors] = React.useState("Motors");
+    const motorValues = ["Brushless","Brushed","Both"];    
+    const [batteries, setBatteries] = React.useState("");
+    const [language, setLanguage] = React.useState("Language");
+    const languageValues = ["Java", "C/C++", "Labview", "Python", "Other"];
+    const [codeParadigm, setCodeParadigm] = React.useState("Code Paradigm");
+    const codeParadigmValues = ["Command", "Timed", "Other"];
+    const [humanPlayer, setHumanPlayer] = React.useState("Human Player");
+    const humanPlayerValues = ["Own","Other"];
+    const [overallStatus, setOverallStatus] = React.useState("");
+    const [climb, setClimb] = React.useState("Climb");
+    const climbValues = ["Center","Edge", "Both", "None"];
+    const [underStage, setUnderStage] = React.useState("");
+    const [shootingLocation, setShootingLocations] = React.useState("Shooting Area");
+    const ShootingLocationValues = ["Subwoofer", "Mid", "Far", "Sub & Mid", "All", "None"];
+    const [weight,setWeight] = React.useState("");
+
     const [comments, setComments] = React.useState("");
-    const [eventKey, setEventKey] = React.useState("");    
+    const [eventKey, setEventKey] = React.useState("");
     const [dataType, setDataType] = React.useState("Pit");
     const [uploadPhoto, setUploadPhoto] = React.useState(false);
     const [type, setType] = React.useState(CameraType.back);
@@ -48,6 +65,19 @@ const PitScout = ({route, navigation}) =>
             formatNameState(scouterName),
             formatNumericState(teamNumber),
 
+            /* pit data */
+            formatNameState(driveTrain),
+            formatNameState(motors),
+            formatNameState(batteries),
+            formatNumericState(weight),
+            formatNameState(language),
+            formatNameState(codeParadigm),
+            formatNameState(humanPlayer),
+            underStage ? 1 : 0,
+            formatNameState(climb),
+            formatNameState(shootingLocation),
+            formatNumericState(overallStatus),
+
             // After Round
             eventKey,
             comments,
@@ -64,19 +94,34 @@ const PitScout = ({route, navigation}) =>
     };
 
     const loadSavedData = (data) => {
+
+        console.log(data);
+
         setDataType(data[0]);
         // Pre Round
         
         setScouterName(data[1]);
         setTeamNumber(data[2]);
-        
+
+        setDriveTrain(data[3]),
+        setMotors(data[4]),
+        setBatteries(data[5]),
+        setWeight(data[6]),
+        setLanguage(data[7]),
+        setCodeParadigm(data[8]),
+        setHumanPlayer(data[9]),
+        setUnderStage( Number(data[10]) ? true : false ),
+        setClimb(data[11]),
+        setShootingLocations(data[12]),
+        setOverallStatus(data[13]),
+
         // After Round
         
-        setEventKey(data[3]);
-        setComments(data[4]);
+        setEventKey(data[14]);
+        setComments(data[15]);
 
-        if (data[5].length > 0) {           
-            setPhotos(data[5].split(","));
+        if (data[16].length > 0) {           
+            setPhotos(data[16].split(","));
         }
     }
     
@@ -116,7 +161,7 @@ const PitScout = ({route, navigation}) =>
     const handlePhoto = async () => {
         const photo = await ref.current.takePictureAsync();
 
-        console.log(photo.uri);
+        //console.log(photo.uri);
         const photopath = photo.uri;
 
         setPhotos([
@@ -183,14 +228,12 @@ const PitScout = ({route, navigation}) =>
             {/* All scouting settings go in the scroll view */}
             <KeyboardAvoidingView style={{flex: 1}} behavior="height">
             <ScrollView keyboardShouldPersistTaps='handled' ref={scrollRef}>
-                <View style={{height: 30*vh, zIndex: 1}}>
+                <View style={{height:70*vh, zIndex: 1}}>
                     <Text style={styles.sectionHeader}>Pit Scout</Text>
 
                     <View style={{...styles.rowAlignContainer, zIndex: 7}}>
                         {/* ScouterName */}
-                        <Text style={globalTextStyles.labelText}>
-                            Scouter Name:
-                        </Text>
+
                         <TTTextInput
                             state={scouterName}
                             setState={setScouterName}
@@ -202,12 +245,6 @@ const PitScout = ({route, navigation}) =>
                                 globalTextStyles.labelText
                             ]}
                         />
-                    </View>
-
-                    <View style={{...styles.rowAlignContainer, zIndex: 4}}>
-                        <Text style={ globalTextStyles.labelText }>
-                            Team Number:
-                        </Text>
                         {/* Team number */}
                         <TTNumberInput
                             state={teamNumber}
@@ -219,7 +256,148 @@ const PitScout = ({route, navigation}) =>
                             style={styles.topNumberInput}
                         />
                     </View>
-                    <View style={{marginBottom: 5*vh}}/> 
+                    
+                    <View style={{...styles.rowAlignContainer, zIndex: 10}}>
+
+                    {/* drive Train */}
+                        <TTDropdown 
+                            state={driveTrain} 
+                            setState={setDriveTrain} 
+                            items={driveTrainValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={5}
+                        />
+
+                    {/* Motor */}
+                        <TTDropdown 
+                            state={motors} 
+                            setState={setMotors} 
+                            items={motorValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={6}
+                        />
+                    </View>
+                    
+                    <View style={{...styles.rowAlignContainer, zIndex: 9}}>
+
+                        <TTNumberInput
+                            state={batteries}
+                            setState={setBatteries}
+                            stateMax={99}
+                            maxLength={2}
+                            placeholder="Battery #"
+                            placeholderTextColor={`${CS.light1}50`}
+                            style={styles.topNumberInput}
+                        />
+                        
+                        <TTNumberInput
+                            state={weight}
+                            setState={setWeight}
+                            stateMax={125}
+                            maxLength={3}
+                            placeholder="Weight"
+                            placeholderTextColor={`${CS.light1}50`}
+                            style={styles.topNumberInput}
+                        />
+                    </View>
+
+                    <View style={{...styles.rowAlignContainer, zIndex: 8}}>
+
+                    {/* language */}
+                        <TTDropdown 
+                            state={language} 
+                            setState={setLanguage} 
+                            items={languageValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={8}
+                        />
+                    {/* structure */}
+                        <TTDropdown 
+                            state={codeParadigm} 
+                            setState={setCodeParadigm} 
+                            items={codeParadigmValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={9}
+                        />
+                    </View>
+
+                    <View style={{...styles.rowAlignContainer, zIndex: 7}}>
+
+                    {/* human player */}
+                        <TTDropdown 
+                            state={humanPlayer} 
+                            setState={setHumanPlayer} 
+                            items={humanPlayerValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={5}
+                        />
+
+                    {/* under stage */}
+                        <TTSimpleCheckbox 
+                            state={underStage}
+                            setState={setUnderStage}
+                            text="Under Stage" 
+                            overallStyle={{height: "100%", alignSelf: "center"}}
+                            textStyle={{...globalTextStyles.labelText}}
+                            boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
+                            boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
+                        />
+                    </View>
+                   <View style={{...styles.rowAlignContainer, zIndex: 6}}>
+
+                    {/* climb */}
+                        <TTDropdown 
+                            state={climb} 
+                            setState={setClimb} 
+                            items={climbValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={5}
+                        />
+
+                    {/* shooting locations */}
+                        <TTDropdown 
+                            state={shootingLocation} 
+                            setState={setShootingLocations} 
+                            items={ShootingLocationValues}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={6}
+                        />
+                    </View>
+                    <View style={{...styles.rowAlignContainer, zIndex: 5}}>
+                    
+                        <TTNumberInput
+                            state={overallStatus}
+                            setState={setOverallStatus}
+                            stateMax={10}
+                            maxLength={10}
+                            placeholder="Overall Status 1-10"
+                            placeholderTextColor={`${CS.light1}50`}
+                            style={styles.topNumberInput}
+                        />
+                    </View>
+                    <View style={{marginBottom: 5*vh}}/>
+
                 </View>
 
                 <View style={{height: 75*vh}}>
@@ -256,7 +434,7 @@ const PitScout = ({route, navigation}) =>
                         <TTTextInput
                             state={comments}
                             setState={setComments}
-                            placeholder="Comments (1000 characters)"
+                            placeholder="Comments/Assistance Needed? (1000 characters)"
                             placeholderTextColor={`${CS.light1}50`}
                             multiline={true}
                             maxLength={1000}

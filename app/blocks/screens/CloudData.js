@@ -14,8 +14,8 @@ import { loadCloudCache, loadPitCache, loadSettings, saveCloudCache, savePitCach
 import { ColorScheme as CS } from '../../common/ColorScheme';
 import { TTDropdown, TTCounterInput, TTNumberInput } from '../components/InputComponents';
 
-const sortableValues = ["Team Number", "Total Points","Auto Points", "Teleop Points", "Misses", "Cubes", "Cones", "Docking"];
-const sortableKeys = [null, "total","auto", "teleop", "misses", "cubes", "cones", "docking"];
+const sortableValues = ["Team Number", "Total Points","Auto Points", "Teleop Points", "Misses", "Speaker", "Amp", "Endgame Points"];
+const sortableKeys = [null, "total","auto", "teleop", "misses", "speaker", "amp", "endgame"];
 
 // Main function
 const CloudData = ({route, navigation}) => {
@@ -39,37 +39,56 @@ const CloudData = ({route, navigation}) => {
     const [filterBy, setFilterBy] = React.useState("0");
     const [reverseSort, setReverseSort] = React.useState(false);
 
+    const getClimbScore = (climbValue) => {
+
+        switch (climbValue){
+            case 0 :
+                return 0;
+            case 1 :
+                return 1;
+            case 2 :
+                return 3;
+            case 3 :
+                return 4;
+            default :
+                return 0;
+        }
+
+    }
+
     // Calculates average statistics
     const calculateAverages = (teamData) => {
         const teamAverages = {};
         // Loop over every team
         for (const teamNumber of Object.keys(teamData)) {
             
-            const averages = { total: 0, auto: 0, teleop: 0, misses: 0, cubes: 0, cones: 0, docking: 0 };
+            const averages = { total: 0, auto: 0, teleop: 0, misses: 0, speaker: 0, amp: 0, endgame: 0 };
             const count = teamData[teamNumber].length;
             // For every md (match data), add to the average for each stat
 
             for (const md of teamData[teamNumber]) {
-      
+                //console.log(md);
                 // This is horrible
-                averages.total += 6*(Number(md[10])+Number(md[13])) + 4*(Number(md[11])+Number(md[14]))+ 3*(Number(md[12])+Number(md[15]))
-                + 5*(Number(md[17])+Number(md[20])) + 3*(Number(md[18])+Number(md[21]))+ 2*(Number(md[19])+Number(md[22]))
-                + 8*Number(md[8]) + 12*Number(md[9]) + 6*Number(md[25]) + 10*Number(md[26]) + 2*Number(md[24]) + 3*Number(md[7]);
-                averages.auto += 6*(Number(md[10])+Number(md[13])) + 4*(Number(md[11])+Number(md[14]))+ 3*(Number(md[12])+Number(md[15]));
-                averages.teleop += 5*(Number(md[17])+Number(md[20])) + 3*(Number(md[18])+Number(md[21]))+ 2*(Number(md[19])+Number(md[22]));
-                averages.misses += Number(md[16]) + Number(md[23]);
-                averages.cubes += Number(md[10])+Number(md[11])+Number(md[12]) + Number(md[17])+Number(md[18])+Number(md[19]);
-                averages.cones += Number(md[13])+Number(md[14])+Number(md[15]) + Number(md[20])+Number(md[21])+Number(md[22]);
-                averages.docking += 8*Number(md[8]) + 12*Number(md[9]) + 6*Number(md[25]) + 10*Number(md[26]) + 2*Number(md[24]);
+                averages.total += 2*Number(md[11]) + 5*Number(md[9])+ 2*Number(md[7])
+                + 1*Number(md[16]) + 2*Number(md[13])+ 5*Number(md[14])
+                + 5*Number(md[18]) + getClimbScore(Number(md[19]));
+                averages.auto += 2*(Number(md[11])) + 5*(Number(md[9]))+ 2*(Number(md[7]));
+                averages.teleop += 1*(Number(md[16])) + 2*(Number(md[13]))+ 5*(Number(md[14]));
+                averages.misses += Number(md[15]) + Number(md[17])+ Number(md[12]) + Number(md[10]);
+                averages.speaker += Number(md[9])+Number(md[13])+Number(md[14]);
+                averages.amp += Number(md[11])+Number(md[16]);
+                averages.endgame += 5*Number(md[18]) + getClimbScore(Number(md[19]));
+                //console.log(averages.auto);
             }
+            //console.log(averages);
             // Average out and round
             averages.total = Math.round(10*averages.total / count) / 10;
             averages.auto = Math.round(10*averages.auto / count) / 10;
             averages.teleop = Math.round(10*averages.teleop / count) / 10;
             averages.misses = Math.round(10*averages.misses / count) / 10;
-            averages.cubes = Math.round(10*averages.cubes / count) / 10;
-            averages.cones = Math.round(10*averages.cones / count) / 10;
-            averages.docking = Math.round(10*averages.docking / count) / 10;
+            averages.speaker = Math.round(10*averages.speaker / count) / 10;
+            averages.amp = Math.round(10*averages.amp / count) / 10;
+            averages.endgame = Math.round(10*averages.endgame / count) / 10;
 
             teamAverages[teamNumber] = averages;
             }
@@ -275,15 +294,15 @@ const CloudData = ({route, navigation}) => {
                         </Text>
                     </View>
                     <View>
-                        <Text style={topLabelStyle}>Misses</Text>
+                        <Text style={topLabelStyle}>Endgame</Text>
                         <Text style={bottomLabelStyle}>
-                            {statistics[props.teamNumber]?.misses}
+                            {statistics[props.teamNumber]?.endgame}
                         </Text>
                     </View>
                     <View>
-                        <Text style={topLabelStyle}>Docking</Text>
+                        <Text style={topLabelStyle}>Misses</Text>
                         <Text style={bottomLabelStyle}>
-                            {statistics[props.teamNumber]?.docking}
+                            {statistics[props.teamNumber]?.misses}
                         </Text>
                     </View>
                 </View>

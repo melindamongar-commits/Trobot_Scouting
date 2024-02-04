@@ -55,6 +55,9 @@ const uploadImage = async (storage, uri, filepath) => {
     };
 
     const storageRef = ref(storage, filepath);
+
+    console.log(uri);
+    console.log(filepath);
        
    try{
         const blob = await new Promise((resolve, reject) => {
@@ -82,7 +85,10 @@ const uploadMultipleStringsToCloud = async (storage, multiStringData, filepaths)
         // Batch upload them with a concurrency limit
         await Promise.map(multiStringData, 
             (stringData, i) => {
-                const filepath = filepaths[i];
+                var filepath = filepaths[i];
+                if (filepath.startsWith("/")) {
+                    filepath = filepath.substring(1);
+                }
                 
                 if(stringData.startsWith("Pit")){
 
@@ -90,7 +96,7 @@ const uploadMultipleStringsToCloud = async (storage, multiStringData, filepaths)
                         var removePath = (stringData.substring(stringData.indexOf("file:///"),stringData.indexOf("/Camera/")+8));
                         var finalString = stringData.replaceAll(removePath, "");
 
-                        var files = stringData.split("|")[5];
+                        var files = stringData.split("|")[16];
                     
                         var fileArray = files.split(",");
                         for (var j=0; j < fileArray.length; j++)

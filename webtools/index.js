@@ -296,15 +296,16 @@ const downloadDataToXLSX = async () => {
         // Constants
         const matchTypeValues = ["Practice", "Qualifiers", "Finals"];
         const deviceValues = ["Blue1","Blue2","Blue3","Red1","Red2","Red3"];
+        const stageValues = ["None","Park","Onstage","Onstage Buddy"];
 
         for (const dataType of Object.keys(fileContents)) {
             if(dataType == "Match") {
                 const Sheet = XLSX.utils.aoa_to_sheet([
                     ["DataType","ScouterName","Device","TeamNumber","MatchNumber","MatchType","AllianceColor",
-                        "Mobility","AutoDocked","AutoEngaged",
-                        "AutoCubeHigh","AutoCubeMid","AutoCubeLow","AutoConeHigh","AutoConeMid","AutoConeLow","AutoMisses",
-                        "TeleCubeHigh","TeleCubeMid","TeleCubeLow","TeleConeHigh","TeleConeMid","TeleConeLow","TeleMisses",
-                        "EndgameParked","EndgameDocked","EndgameEngaged","EventKey","Comments"],
+                        "Leave","CenterlineNoteScored",
+                        "AutoSpeaker","AutoSpeakerMiss","AutoAmp","AutoAmpMiss",
+                        "TeleSpeaker","TeleSpeakerMiss","TeleAmpifiedSpeaker","TeleAmp","TeleAmpMiss",
+                        "Trap","Stage/Climb","Broke","NoteStuck","EventKey","Comments"],
                     ...(fileContents[dataType].map(match => [
                         match[0],
                         match[1],
@@ -313,28 +314,23 @@ const downloadDataToXLSX = async () => {
                         match[4],
                         matchTypeValues[match[5]],
                         match[6],
-                        Number(match[7]) ? true : false,
-                        Number(match[8]) ? true : false,
-                        Number(match[9]) ? true : false,
-                        Number(match[10]),
-                        Number(match[11]),
-                        Number(match[12]),
-                        Number(match[13]),
-                        Number(match[14]),
-                        Number(match[15]),
-                        Number(match[16]),
-                        Number(match[17]),
-                        Number(match[18]),
-                        Number(match[19]),
-                        Number(match[20]),
-                        Number(match[21]),
-                        Number(match[22]),
-                        Number(match[23]),
-                        Number(match[24]) ? true : false,
-                        Number(match[25]) ? true : false,
-                        Number(match[26]) ? true : false,
-                        match[27],
-                        match[28]
+                        Number(match[7]) ? true : false, //Leave
+                        Number(match[8]) ? true : false, //CemterlineNoteScored
+                        Number(match[9]), //AutoSpeaker
+                        Number(match[10]), //AutoSpeakerMiss
+                        Number(match[11]), //AutoAmp
+                        Number(match[12]), //AutoAmpMiss
+                        Number(match[13]), //TeleSpeaker
+                        Number(match[14]), //TeleAmplifiedSpeaker
+                        Number(match[15]), //TeleSpeakerMiss
+                        Number(match[16]), //TeleAmp
+                        Number(match[17]), //TeleAmpMiss
+                        Number(match[18]), //Trap
+                        stageValues[match[19]], //Stage/Climb
+                        Number(match[20]), //Broke
+                        Number(match[21]), //Note Stuck
+                        match[22], //EventKey
+                        match[23] //comment
                     ]))
                 ]);
 
@@ -342,17 +338,31 @@ const downloadDataToXLSX = async () => {
             }
             if(dataType == "Pit") {
                 const pitSheet = XLSX.utils.aoa_to_sheet([
-                    ["DataType","ScouterName","TeamNumber","EventKey","Comments","Photos"],
+                    ["DataType","ScouterName","TeamNumber",
+                    "DriveTrain","Motor","Batteries","weight",
+                    "Language","CodeParadigm","HumanPlayer",
+                    "UnderStage","Stage/Climb","ShootingLocations","OverallStatus",
+                    "EventKey","Comments","Photos"],
                     ...(fileContents[dataType].map(pit => [
-                        pit[0],
-                        pit[1],
-                        pit[2],
-                        pit[3],
-                        pit[4],
-                        pit[5]
+                        pit[0], //DataType
+                        pit[1], //ScouterName
+                        pit[2], //TeamNumber
+                        pit[3], //DriveTrain
+                        pit[4], //Motor
+                        pit[5], //Batteries
+                        pit[6], //Weight
+                        pit[7], //Language
+                        pit[8], //CodeParadigm
+                        pit[9], //HumanPlayer
+                        pit[10], //UnderStage
+                        pit[11], //Stage/Climb
+                        pit[12], //ShootingLocations
+                        pit[13], //OverallStatus
+                        pit[14], //comment
+                        pit[15] //photos
                     ]))
                 ]);
-        
+
                 XLSX.utils.book_append_sheet(workbook, pitSheet, dataType);
             }
         }
