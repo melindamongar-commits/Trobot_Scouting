@@ -60,28 +60,28 @@ const PitScout = ({route, navigation}) =>
     // Serializes the data to a string and saves it
     const saveAndExit = async () => {
         const pitData = [
-            dataType,
+            dataType, //0
             // Pre Round
-            formatNameState(scouterName),
-            formatNumericState(teamNumber),
+            formatNameState(scouterName), //1
+            formatNumericState(teamNumber), //2
 
             /* pit data */
-            formatNameState(driveTrain),
-            formatNameState(motors),
-            formatNameState(batteries),
-            formatNumericState(weight),
-            formatNameState(language),
-            formatNameState(codeParadigm),
-            formatNameState(humanPlayer),
-            underStage ? 1 : 0,
-            formatNameState(climb),
-            formatNameState(shootingLocation),
-            formatNumericState(overallStatus),
+            formatNameState(driveTrain), //3
+            formatNameState(motors), //4
+            formatNameState(batteries), //5
+            formatNumericState(weight), //6
+            formatNameState(language), //7
+            formatNameState(codeParadigm), //8
+            formatNameState(humanPlayer), //9
+            underStage ? 1 : 0, //10
+            formatNameState(climb), //11
+            formatNameState(shootingLocation), //12
+            formatNumericState(overallStatus), //13
 
             // After Round
-            eventKey,
-            comments,
-            photos,
+            eventKey, //14
+            comments, //15
+            photos, //16
         ];
 
         // Save data using hash
