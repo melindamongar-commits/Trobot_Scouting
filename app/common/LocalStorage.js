@@ -9,7 +9,6 @@ Each round should have a hash of some kind which is used for the name of a sub-k
 most sense to use the team number, round type, and round number. It could be packed bytes as seen above, or in a more
 readable format like 4829-Q18
 */
-import * as FileSystem from 'expo-file-system';
 
 // Library imports
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -92,7 +91,6 @@ const readMultipleDataKeys = async (keys) => {
         return null;
     }
 }
-
 
 // Deletes a key. Returns false if there was an error, returns true otherwise
 const deleteData = async (key) => {
