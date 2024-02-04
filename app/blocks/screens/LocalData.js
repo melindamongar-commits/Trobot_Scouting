@@ -89,7 +89,7 @@ const LocalData = ({route, navigation}) => {
 				return filename;
 			}
 		);
-		
+		console.log(filenames);		
 		await uploadMultipleStringsToCloud(storage, multiStringData, filenames);
 
 		setLoadingVisible(false);
@@ -119,12 +119,12 @@ const LocalData = ({route, navigation}) => {
 		const localFileUri = fileDir + "ScoutingFile.txt";
 
 		var dataString ='DataType|ScouterName|Device|TeamNumber|MatchNumber|MatchType|AllianceColor|';
-		dataString =dataString + 'Mobility|AutoDocked|AutoEngaged|'
-		dataString =dataString + 'AutoCubeHigh|AutoCubeMid|AutoCubeLow|';
-		dataString =dataString + 'AutoConeHigh|AutoConeMid|AutoConeLow|AutoMisses|';
-		dataString =dataString + 'TeleCubeHigh|TeleCubeMid|TeleCubeLow|';		
-		dataString =dataString + 'TeleConeHigh|TeleConeMid|TeleConeLow|TeleMisses|';
-		dataString =dataString + 'EndgameParked|EndgameDocked|EndgameEngaged|EventKey|Comments\n';
+		dataString =dataString + 'Leave|CenterlineNoteScored|'
+		dataString =dataString + 'AutoSpeaker|AutoSpeakerMisses|';
+		dataString =dataString + 'AutoAmp|AutoAmpMisses|';
+		dataString =dataString + 'TeleSpeaker|TeleAmplifiedSpeaker|TeleSpeakerMisses|';		
+		dataString =dataString + 'TeleAmp|TeleAmpMisses|';
+		dataString =dataString + 'Trap|StageClimb|Broke|NoteStuck|EventKey|Comments\n';
 		var i ;
 		for(i=0; i < multiStringData.length; i++){
 			dataString += `${multiStringData[i]}\n`;
