@@ -177,14 +177,14 @@ const TeamAnalytics = ({route, navigation}) => {
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Speaker-<Text style={styles.dataText}>{props.matchData[13]}</Text></Text>
                         <Text style={styles.dataLabel}>AmpSpeaker-<Text style={styles.dataText}>{props.matchData[14]}</Text></Text>
-                        <Text style={styles.dataLabel}>Speaker Misses-<Text style={styles.dataText}>{props.matchData[15]}</Text></Text>
+                        <Text style={styles.dataLabel}>Speaker Miss-<Text style={styles.dataText}>{props.matchData[15]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Amp-<Text style={styles.dataText}>{props.matchData[16]}</Text></Text>
                         <Text style={styles.dataLabel}>Amp Misses-<Text style={styles.dataText}>{props.matchData[17]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Stage/Climb-<Text style={styles.dataText}>{stageValues[props.matchData[19]]}</Text></Text>
+                        <Text style={styles.dataLabel}>Climb-<Text style={styles.dataText}>{stageValues[props.matchData[19]]}</Text></Text>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[18] == 1 ? "Did" : "Did not"}</Text> trap</Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
@@ -268,7 +268,9 @@ const TeamAnalytics = ({route, navigation}) => {
 
 
             { props.pitData[16].split(",").map((imageName, imageindex) => {
+                if (imageName != null) {
                 return (
+
 
                     <View key={imageindex} style={styles.rowAlignContainer}>
                     <Text style={styles.dataText}></Text>
@@ -280,6 +282,7 @@ const TeamAnalytics = ({route, navigation}) => {
                     <View style={{margin: 2*vh}}></View>
                     </View>
                 );
+                }
             })}
 
                 </View>
@@ -516,13 +519,13 @@ const styles = StyleSheet.create({
     },
     dataText: {
         fontFamily: "LGC Bold",
-        fontSize: 14*fU,
+        fontSize: 12*fU,
     },
     dataLabel: {
         marginVertical: 0.4*vh,
 
         fontFamily: "LGC Light Italic", // For reasons I cannot explain, setting this to "LGC Light" adds a margin of about 130 to every item using it
-        fontSize: 14*fU,
+        fontSize: 12*fU,
     },
     statHeader: {
         ...globalTextStyles.secondaryText,
