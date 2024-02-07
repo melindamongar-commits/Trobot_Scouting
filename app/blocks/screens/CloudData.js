@@ -383,7 +383,7 @@ const CloudData = ({route, navigation}) => {
                     />
                 </View>  
                 <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 1*vh, zIndex: 4}}>
-                    <Text style={globalTextStyles.labelText}>Filter By Qualifier...</Text>
+                    <Text style={globalTextStyles.labelText}> Filter By Match...</Text>
                     <TTButton 
                         text="+"
                         buttonStyle={{...globalButtonStyles.primaryButton, width: 7*vh, aspectRatio: 1, margin: 2*vh}}
