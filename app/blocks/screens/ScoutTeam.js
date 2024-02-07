@@ -64,6 +64,7 @@ const ScoutTeam = ({route, navigation}) => {
     const [broke, setBroke] = React.useState(false);
 
     const [stage, setStage] = React.useState("Stage Climb");
+    const [driverSkill, setDriverSkill] = React.useState("");
     const [eventKey, setEventKey] = React.useState("");
     const [comments, setComments] = React.useState("");
 
@@ -106,10 +107,11 @@ const ScoutTeam = ({route, navigation}) => {
             stage != "Stage" ? stageValues.indexOf(stage) : 1, //19
             broke ? 1 : 0, //20
             noteStuck ? 1 : 0, //21
+            driverSkill, //22
 
             // After Round
-            eventKey, //22
-            comments, //23
+            eventKey, //23
+            comments, //24
         ];
 
         const matchCache = {
@@ -158,11 +160,11 @@ const ScoutTeam = ({route, navigation}) => {
         setStage(stageValues[data[19]]);
         setBroke(Number(data[20]) ? true : false);
         setNoteStuck(Number(data[21]) ? true : false);
-
+        setDriverSkill(Number(data[22]));
         // After Round
         
-        setEventKey(data[22]);
-        setComments(data[23]);
+        setEventKey(data[23]);
+        setComments(data[24]);
     }
     
 
@@ -530,11 +532,10 @@ const ScoutTeam = ({route, navigation}) => {
                 ENDGAME 
                 
                 */}
-                <View style={{height: 50*vh}}>
+                <View style={{height: 40*vh}}>
                     <TTGradient/>
 
-                    <Text style={styles.sectionHeader}>Endgame</Text>
-                    
+                    <Text style={styles.sectionHeader}>Endgame</Text>                    
                     <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
                        
                      <TTSimpleCheckbox 
@@ -580,8 +581,21 @@ const ScoutTeam = ({route, navigation}) => {
                         />
 
                     </View>
-                    <View style={styles.rowAlignContainer}>
-                         <TTTextInput
+                    <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
+                    <Text style={globalTextStyles.labelText}>Driver Skill</Text>
+                     <TTDropdown
+                            state={driverSkill}
+                            setState={setDriverSkill} 
+                            items={[1,2,3]}
+                            boxWidth={40*vw}
+                            boxHeight={5*vh}
+                            boxStyle={globalInputStyles.dropdownInput}
+                            textStyle={globalTextStyles.labelText}
+                            zIndex={4}
+                        />
+                    </View>
+                    <View style={{...styles.rowAlignContainer, flexGrow: .5}}>
+                        <TTTextInput
                             state={comments}
                             setState={setComments}
                             placeholder="Comments (50 characters)"
@@ -591,14 +605,12 @@ const ScoutTeam = ({route, navigation}) => {
                             numberOfLines={4}
                             onFocus={() => {scrollRef.current.scrollToEnd()}}
                             style={[
-                                {...globalInputStyles.numberInput, width: "90%", height: "90%"},
+                                {...globalInputStyles.numberInput, width: "90%", height: "70%"},
                                 globalTextStyles.labelText
                             ]} 
                         />
                     </View>
 
-                    {/* Rudamentary spacer */}
-                    {/*<View style={{marginBottom: 5*vh}}/> */}
                 </View>
                 
                 <View style={{...globalContainerStyles.centerContainer, backgroundColor: "#00000000"}}>

@@ -24,7 +24,7 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const checkEmptyComments = () => {
         for (const match of route.params.teamData) {
-            if (match[23].length !== 0) return false;
+            if (match[24].length !== 0) return false;
         }
         for (const pit of route.params.pitData) {
             if (pit[15].length !==0)return false;
@@ -61,7 +61,7 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const checkForDNP = () => {
         for (const match of route.params.teamData) {
-            const comment = match[23].toLowerCase().replace(/’/g, "'");
+            const comment = match[24].toLowerCase().replace(/’/g, "'");
             if (
                 comment.includes("dnp") || 
                 comment.includes("don't pick") || 
@@ -177,19 +177,22 @@ const TeamAnalytics = ({route, navigation}) => {
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Speaker-<Text style={styles.dataText}>{props.matchData[13]}</Text></Text>
                         <Text style={styles.dataLabel}>AmpSpeaker-<Text style={styles.dataText}>{props.matchData[14]}</Text></Text>
-                        <Text style={styles.dataLabel}>Speaker Misses-<Text style={styles.dataText}>{props.matchData[15]}</Text></Text>
+                        <Text style={styles.dataLabel}>Speaker Miss-<Text style={styles.dataText}>{props.matchData[15]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Amp-<Text style={styles.dataText}>{props.matchData[16]}</Text></Text>
                         <Text style={styles.dataLabel}>Amp Misses-<Text style={styles.dataText}>{props.matchData[17]}</Text></Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>Stage/Climb-<Text style={styles.dataText}>{stageValues[props.matchData[19]]}</Text></Text>
+                        <Text style={styles.dataLabel}>Climb-<Text style={styles.dataText}>{stageValues[props.matchData[19]]}</Text></Text>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[18] == 1 ? "Did" : "Did not"}</Text> trap</Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[20] == 1 ? "Did" : "Did not"}</Text> break</Text>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[21] == 1 ? "Did" : "Did not"}</Text> get note stuck</Text>
+                    </View>
+                    <View style={styles.rowAlignContainer}>
+                        <Text style={styles.dataLabel}>Driver Skill-<Text style={styles.dataText}>{props.matchData[22]}</Text></Text>
                     </View>
                 </View>
 
@@ -199,7 +202,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         Comment
                     </Text>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>"{props.matchData[23]}"</Text>
+                        <Text style={styles.dataLabel}>"{props.matchData[24]}"</Text>
                     </View>
                 </View>
 
@@ -268,7 +271,9 @@ const TeamAnalytics = ({route, navigation}) => {
 
 
             { props.pitData[16].split(",").map((imageName, imageindex) => {
+                if (imageName != null) {
                 return (
+
 
                     <View key={imageindex} style={styles.rowAlignContainer}>
                     <Text style={styles.dataText}></Text>
@@ -280,6 +285,7 @@ const TeamAnalytics = ({route, navigation}) => {
                     <View style={{margin: 2*vh}}></View>
                     </View>
                 );
+                }
             })}
 
                 </View>
@@ -430,7 +436,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         Comments
                     </Text>
                     {route.params.teamData.map((match, index) => {
-                        const comment = match[23];
+                        const comment = match[24];
                         if (comment.length !== 0) return (
                             <View key={index}>
                                 <Text style={{...globalTextStyles.labelText, margin: 0.5*vh}}>"{comment}"</Text>
@@ -516,13 +522,13 @@ const styles = StyleSheet.create({
     },
     dataText: {
         fontFamily: "LGC Bold",
-        fontSize: 14*fU,
+        fontSize: 12*fU,
     },
     dataLabel: {
         marginVertical: 0.4*vh,
 
         fontFamily: "LGC Light Italic", // For reasons I cannot explain, setting this to "LGC Light" adds a margin of about 130 to every item using it
-        fontSize: 14*fU,
+        fontSize: 12*fU,
     },
     statHeader: {
         ...globalTextStyles.secondaryText,
