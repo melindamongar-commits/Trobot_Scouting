@@ -24,7 +24,7 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const checkEmptyComments = () => {
         for (const match of route.params.teamData) {
-            if (match[23].length !== 0) return false;
+            if (match[24].length !== 0) return false;
         }
         for (const pit of route.params.pitData) {
             if (pit[15].length !==0)return false;
@@ -61,7 +61,7 @@ const TeamAnalytics = ({route, navigation}) => {
 
     const checkForDNP = () => {
         for (const match of route.params.teamData) {
-            const comment = match[23].toLowerCase().replace(/’/g, "'");
+            const comment = match[24].toLowerCase().replace(/’/g, "'");
             if (
                 comment.includes("dnp") || 
                 comment.includes("don't pick") || 
@@ -191,6 +191,9 @@ const TeamAnalytics = ({route, navigation}) => {
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[20] == 1 ? "Did" : "Did not"}</Text> break</Text>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[21] == 1 ? "Did" : "Did not"}</Text> get note stuck</Text>
                     </View>
+                    <View style={styles.rowAlignContainer}>
+                        <Text style={styles.dataLabel}>Driver Skill-<Text style={styles.dataText}>{props.matchData[22]}</Text></Text>
+                    </View>
                 </View>
 
                 {/* Comment Subcontainer */}
@@ -199,7 +202,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         Comment
                     </Text>
                     <View style={styles.rowAlignContainer}>
-                        <Text style={styles.dataLabel}>"{props.matchData[23]}"</Text>
+                        <Text style={styles.dataLabel}>"{props.matchData[24]}"</Text>
                     </View>
                 </View>
 
@@ -433,7 +436,7 @@ const TeamAnalytics = ({route, navigation}) => {
                         Comments
                     </Text>
                     {route.params.teamData.map((match, index) => {
-                        const comment = match[23];
+                        const comment = match[24];
                         if (comment.length !== 0) return (
                             <View key={index}>
                                 <Text style={{...globalTextStyles.labelText, margin: 0.5*vh}}>"{comment}"</Text>
