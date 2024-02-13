@@ -104,7 +104,7 @@ const ScoutTeam = ({route, navigation}) => {
             formatNumericState(telePoints.ampmiss), //17
 
             trap ? 1 : 0, //18
-            stage != "Stage" ? stageValues.indexOf(stage) : 1, //19
+            stage != "Stage Climb" ? stageValues.indexOf(stage) : 0, //19
             broke ? 1 : 0, //20
             noteStuck ? 1 : 0, //21
             driverSkill, //22
@@ -423,7 +423,7 @@ const ScoutTeam = ({route, navigation}) => {
                                         setState={setLeave}
                                         text="Leave?    " 
                                         overallStyle={{height: "100%", alignSelf: "center"}}
-                                        textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
+                                        textStyle={{...globalTextStyles.labelText, fontSize: 12*fU}}
                                         boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
                                         boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
                                     />
@@ -453,7 +453,7 @@ const ScoutTeam = ({route, navigation}) => {
                                         setState={setCenterlineNoteScored}
                                         text="Center Note Scored?" 
                                         overallStyle={{height: "100%", alignSelf: "center"}}
-                                        textStyle={{...globalTextStyles.labelText, fontSize: 14*fU}}
+                                        textStyle={{...globalTextStyles.labelText, fontSize: 12*fU}}
                                         boxUncheckedStyle={{...globalButtonStyles.checkboxUncheckedStyle}}
                                         boxCheckedStyle={{...globalButtonStyles.checkboxCheckedStyle}}
                                     />
@@ -648,7 +648,7 @@ const styles = StyleSheet.create({
     },
     counterHeader: {
         ...globalTextStyles.labelText, 
-        fontSize: 15*fU, 
+        fontSize: 14*fU, 
         alignSelf: "center", 
         position: "absolute", 
         top: 2.6*vh
