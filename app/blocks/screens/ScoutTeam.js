@@ -535,10 +535,9 @@ const ScoutTeam = ({route, navigation}) => {
                 <View style={{height: 40*vh}}>
                     <TTGradient/>
 
-                    <Text style={styles.sectionHeader}>Endgame</Text>                    
-                    <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
-                       
-                     <TTSimpleCheckbox 
+                    <Text style={styles.sectionHeader}>Endgame</Text>
+                    <View style={{...styles.rowAlignContainer, zIndex: 7, flexGrow: 0.3}}>
+                    <TTSimpleCheckbox 
                             state={trap}
                             setState={setTrap}
                             text="Trap?" 
@@ -555,13 +554,12 @@ const ScoutTeam = ({route, navigation}) => {
                             boxHeight={5*vh}
                             boxStyle={globalInputStyles.dropdownInput}
                             textStyle={globalTextStyles.labelText}
-                            zIndex={5}
                         />
 
                     </View>
-                    <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
-                       
-                     <TTSimpleCheckbox 
+                    <View style={{...styles.rowAlignContainer, zIndex: 6, flexGrow: 0.3}}>
+
+                    <TTSimpleCheckbox 
                             state={broke}
                             setState={setBroke}
                             text="Broke?" 
@@ -581,9 +579,9 @@ const ScoutTeam = ({route, navigation}) => {
                         />
 
                     </View>
-                    <View style={{...styles.rowAlignContainer, flexGrow: 0.3}}>
+                    <View style={{...styles.rowAlignContainer, zIndex: 5, flexGrow: 0.3}}>
                     <Text style={globalTextStyles.labelText}>Driver Skill</Text>
-                     <TTDropdown
+                    <TTDropdown
                             state={driverSkill}
                             setState={setDriverSkill} 
                             items={[1,2,3]}
@@ -591,10 +589,10 @@ const ScoutTeam = ({route, navigation}) => {
                             boxHeight={5*vh}
                             boxStyle={globalInputStyles.dropdownInput}
                             textStyle={globalTextStyles.labelText}
-                            zIndex={4}
+
                         />
                     </View>
-                    <View style={{...styles.rowAlignContainer, flexGrow: .5}}>
+                    <View style={{...styles.rowAlignContainer, zIndex: 4, flexGrow: 0.5}}>
                         <TTTextInput
                             state={comments}
                             setState={setComments}

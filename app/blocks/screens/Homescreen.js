@@ -16,6 +16,7 @@ const Homescreen = ({route, navigation}) => {
     // Prevents the app from erroring out when firebase is first used
     React.useEffect(() => {
         initializeFirebaseFromSettings();
+        
     },[])
 
     // !! TODO MAKE EVERY SINGLE FONT SIZE IN REFERENCE TO VH / VW
