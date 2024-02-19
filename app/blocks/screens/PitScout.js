@@ -157,7 +157,7 @@ const PitScout = ({route, navigation}) =>
     const ref = React.useRef(null);
 
     const handlePhoto = async () => {
-        const options = { quality: 0.2, skipProcessing: true};
+        const options = { quality: 0.4, skipProcessing: true};
         const photo = await ref.current.takePictureAsync(options);
 
         //console.log(photo.uri);
