@@ -10,6 +10,7 @@ import { globalContainerStyles, globalButtonStyles, globalInputStyles, globalTex
 import { TTGradient } from '../components/ExtraComponents';
 import { TTDropdown } from '../components/InputComponents';
 import { matchTypeValues, teamColorValues,stageValues } from './ScoutTeam';
+import {getSortedObjectOrder} from './CloudData';
 
 const chartableValues = ["Auto Points", "Teleop Points", "Speaker", "Amp", "Misses", "Endgame Points"];
 
@@ -133,9 +134,14 @@ const TeamAnalytics = ({route, navigation}) => {
 
     React.useEffect(() => {
         const matchAbbreviations = route.params.teamData.map((item) => {
-            return `${matchTypeValues[item[5]][1]}${item[4]}`;
+            var matchName = matchTypeValues[item[5]][0] + item[4].toString()
+            return `${matchName}`;
         });
-        setChartLabels(matchAbbreviations);        
+        
+        console.log(matchAbbreviations);
+      //  console.log(route.params.teamData);
+
+        setChartLabels(matchAbbreviations);
         setChartData(getSpecificData("Teleop Points"));
 
         setSubpath(route.params.settings.subpath);
@@ -277,7 +283,7 @@ const TeamAnalytics = ({route, navigation}) => {
                     <View key={imageindex} style={styles.rowAlignContainer}>
                     <Text style={styles.dataText}></Text>
                     <Image
-                        style={{width: 400}}
+                        style={{width: 400, height: 600}}
                         source={{uri:getImage(imageName, firebaseURL, subpath)}}
                     />
                     
@@ -355,7 +361,7 @@ const TeamAnalytics = ({route, navigation}) => {
                     <View style={{margin: 1*vh}}/>
 
                     <Text style={styles.sectionTitle}>
-                        Team {route.params.teamNumber} Overview
+                        Team {route.params.teamNumber} Average
                     </Text>
 
                     <View style={{...styles.rowAlignContainer, paddingHorizontal: 3*vw}}>
@@ -364,19 +370,23 @@ const TeamAnalytics = ({route, navigation}) => {
                             <Text style={globalTextStyles.secondaryText}>{route.params.teamData.length}</Text>
                         </View>
                         <View style={{...styles.columnContainer, alignItems: "center"}}>
-                            <Text style={styles.statHeader}>Auto Avg</Text>
+                            <Text style={styles.statHeader}>Auto</Text>
                             <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.auto}</Text>
                         </View>
                         <View style={{...styles.columnContainer, alignItems: "center"}}>
-                            <Text style={styles.statHeader}>Teleop Avg</Text>
+                            <Text style={styles.statHeader}>Teleop</Text>
                             <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.teleop}</Text>
                         </View>
                         <View style={{...styles.columnContainer, alignItems: "center"}}>
-                            <Text style={styles.statHeader}>Miss Avg</Text>
-                            <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.misses}</Text>
+                            <Text style={styles.statHeader}>Speaker</Text>
+                            <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.speaker}</Text>
                         </View>
                         <View style={{...styles.columnContainer, alignItems: "center"}}>
-                            <Text style={styles.statHeader}>Endgame Avg</Text>
+                            <Text style={styles.statHeader}>Amp</Text>
+                            <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.amp}</Text>
+                        </View>
+                        <View style={{...styles.columnContainer, alignItems: "center"}}>
+                            <Text style={styles.statHeader}>Endgame</Text>
                             <Text style={globalTextStyles.secondaryText}>{route.params.teamStatistics.endgame}</Text>
                         </View>
                     </View>

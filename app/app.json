@@ -24,7 +24,7 @@
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.team5013.trobotscout",
-      "buildNumber":"6",
+      "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow TrobotScout to access your camera. TrobotScout uses the camera exclusively to scan QR codes and allows you to connect to cloud storage buckets."
       }
@@ -63,12 +63,14 @@
         "expo-build-properties",
         {
           "ios": {
+            "deploymentTarget": "13.4",
             "useFrameworks": "static"
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
-    "sdkVersion": "49.0.0"
+    "sdkVersion": "50.0.0"
   },
   "name": "trobotscout2.0"
 }
