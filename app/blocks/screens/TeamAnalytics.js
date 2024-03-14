@@ -153,7 +153,7 @@ const TeamAnalytics = ({route, navigation}) => {
         return (
             <View key={props.id} style={styles.matchDataContainer}>
                 <Text style={{...globalTextStyles.secondaryText, fontSize: 24*fU, color: CS.dark1}}>
-                    {matchTypeValues[props.matchData[5]]} {props.matchData[4]}  —  {teamColorValues[props.matchData[6]]}
+                    {matchTypeValues[props.matchData[5]]} {props.matchData[4]}  —  {teamColorValues[props.matchData[7]]}
                 </Text>
 
                 {/* Auto subcontainer */}
@@ -161,9 +161,10 @@ const TeamAnalytics = ({route, navigation}) => {
                     <Text style={{...globalTextStyles.secondaryText, fontSize: 20*fU, color: CS.dark1}}>
                         Auto
                     </Text>
-
-                    <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[7] == 1 ? "" : "No"}</Text> Leave</Text>
-                    <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[8] == 1 ? "" : "No"}</Text> Centerline Note Scored</Text>
+                    <View style={styles.rowAlignContainer}>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[7] == 1 ? "" : "No"}</Text> Leave</Text>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[8] == 1 ? "" : "No"}</Text> Centerline Note Scored</Text>
+                    </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Speaker-<Text style={styles.dataText}>{props.matchData[9]}</Text></Text>
                         <Text style={styles.dataLabel}>Speaker Misses-<Text style={styles.dataText}>{props.matchData[10]}</Text></Text>
@@ -277,17 +278,16 @@ const TeamAnalytics = ({route, navigation}) => {
 
 
             { props.pitData[16].split(",").map((imageName, imageindex) => {
-                if (imageName != null && imageName.trim().length() > 1) {
+                if (imageName != null && imageName.trim().length > 1) {
 
                 return (
                     <View key={imageindex} style={styles.rowAlignContainer}>
-                    <Text style={styles.dataText}></Text>
+                    
                     <Image
-                        style={{ height: 350,width:260}}
+                        style={{ height: 350,width:200}}
                         source={{uri:getImage(imageName, firebaseURL, subpath)}}
                     />
                     
-                    <View style={{margin: 2*vh}}></View>
                     </View>
                 );
                 }
@@ -365,7 +365,7 @@ const TeamAnalytics = ({route, navigation}) => {
                     </Text>
 
                     <View style={{...styles.rowAlignContainer, paddingHorizontal: 3*vw}}>
-                        <View style={{...styles.columnContainer, alignItems: "center"}}>
+                        <View style={{...styles.centerContainer}}>
                             <Text style={styles.statHeader}>Played</Text>
                             <Text style={globalTextStyles.secondaryText}>{route.params.teamData.length}</Text>
                         </View>
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
     },
     matchDataContainer: {
         ...globalContainerStyles.columnContainer,
-        alignItems: "center",
+   
         marginHorizontal: 2*vh,
         marginVertical: 1*vh,
         padding: 1*vh,
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     },
     matchDataSubcontainer: {
         ...globalContainerStyles.columnContainer,
-        alignItems: "center",
+   
         padding: 1*vh,
         margin: 1*vh,
         
