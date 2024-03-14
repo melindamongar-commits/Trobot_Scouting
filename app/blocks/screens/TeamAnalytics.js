@@ -277,13 +277,13 @@ const TeamAnalytics = ({route, navigation}) => {
 
 
             { props.pitData[16].split(",").map((imageName, imageindex) => {
-                if (imageName != null) {
-                return (
+                if (imageName != null && imageName.trim().length() > 1) {
 
+                return (
                     <View key={imageindex} style={styles.rowAlignContainer}>
                     <Text style={styles.dataText}></Text>
                     <Image
-                        style={{width: 400, height: 600}}
+                        style={{ height: 350,width:260}}
                         source={{uri:getImage(imageName, firebaseURL, subpath)}}
                     />
                     
