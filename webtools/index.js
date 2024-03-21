@@ -305,7 +305,7 @@ const downloadDataToXLSX = async () => {
                         "Leave","CenterlineNoteScored",
                         "AutoSpeaker","AutoSpeakerMiss","AutoAmp","AutoAmpMiss",
                         "TeleSpeaker","TeleSpeakerMiss","TeleAmpifiedSpeaker","TeleAmp","TeleAmpMiss",
-                        "Trap","Stage/Climb","Broke","NoteStuck","DriverSkill","EventKey","Comments"],
+                        "Trap","Stage/Climb","Broke","NoteStuck","DriverSkill","ShuttleNotes","EventKey","Comments"],
                     ...(fileContents[dataType].map(match => [
                         match[0],
                         match[1],
@@ -329,10 +329,11 @@ const downloadDataToXLSX = async () => {
                         stageValues[match[19]], //Stage/Climb
                         Number(match[20]), //Broke
                         Number(match[21]), //Note Stuck
-                        Number(match[22]), //DriverSkill
+                        Number(match[22]), //DriverSkill                        
+                        match[25], //Shuttle Notes
                         match[23], //EventKey
                         match[24] //comment
-                    ]))
+                    ])
                 ]);
 
                 XLSX.utils.book_append_sheet(workbook, Sheet, dataType);

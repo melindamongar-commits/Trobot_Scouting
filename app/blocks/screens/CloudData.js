@@ -31,6 +31,7 @@ const CloudData = ({route, navigation}) => {
     const [cloudData, setCloudData] = React.useState([]);
     const [pitData, setPitData] = React.useState([]);
     const [statistics, setStatistics] = React.useState([]);
+    const [trends, setTrends] = React.useState([]);
     const [teamOrder, setTeamOrder] = React.useState([]);
 
 
@@ -95,6 +96,41 @@ const CloudData = ({route, navigation}) => {
         
             //console.log(teamAverages);
         return teamAverages;
+    }
+    
+    // Calculates average statistics
+    const calculateTrendAverages = (stats) => {
+
+        const trendAverages = { total: 0, auto: 0, teleop: 0, misses: 0, speaker: 0, amp: 0, endgame: 0 };
+        const count = Object.keys(stats).length;
+
+        for (const team of Object.keys(stats)) {
+
+            const teamstat = stats[team];
+            //console.log(teamstat);
+
+            // For every team, add to the trend average for each stat          
+            trendAverages.total = Number(teamstat.total) + trendAverages.total;
+            trendAverages.auto = Number(teamstat.auto) + trendAverages.auto;
+            trendAverages.teleop = Number(teamstat.teleop) + trendAverages.teleop;
+            trendAverages.misses = Number(teamstat.misses) + trendAverages.misses;
+            trendAverages.endgame = Number(teamstat.endgame) + trendAverages.endgame;
+            trendAverages.speaker = Number(teamstat.speaker) + trendAverages.speaker;
+            trendAverages.amp = Number(teamstat.amp) + trendAverages.amp;
+
+        }
+
+        trendAverages.total = Math.round(10*trendAverages.total / count) / 10;
+        trendAverages.auto = Math.round(10*trendAverages.auto / count) / 10;
+        trendAverages.teleop = Math.round(10*trendAverages.teleop / count) / 10;
+        trendAverages.misses = Math.round(10*trendAverages.misses / count) / 10;
+        trendAverages.endgame = Math.round(10*trendAverages.endgame / count) / 10;
+        trendAverages.speaker = Math.round(10*trendAverages.speaker / count) / 10;
+        trendAverages.amp = Math.round(10*trendAverages.amp / count) / 10;
+
+        //console.log(trendAverages);
+    
+        return trendAverages;
     }
 
     const coneCounterSettings = {
@@ -195,13 +231,15 @@ const CloudData = ({route, navigation}) => {
     // Ultra specified to work just for sorting by statistics
 
     const sortMatches = (teamData) => {
-        //Sort matches by matchtype and matchnumber
+        //Sort matches by matchtype, 5th element in team array, and matchnumber, 4th element
         const compareFunction = (a, b) => {
+
             return (
-                Number(a[4]) * 300 + Number(a[3]) -
-                Number(b[4]) * 300 + Number(b[3])
+                (Number(a[5])+1) * Number(a[4]) -
+                (Number(b[5])+1) * Number(b[4])
             )
         }
+        //console.log(teamData.sort(compareFunction));
         return teamData.sort(compareFunction);
     }
 
@@ -220,6 +258,7 @@ const CloudData = ({route, navigation}) => {
                 setCloudData(loadedCache);
                 setTeamOrder(Object.keys(loadedCache));
                 setStatistics(calculateAverages(loadedCache));
+                setTrends(calculateTrendAverages(calculateAverages(loadedCache)));
             }
             if (loadedPitCache !== null) {
                 setPitData(loadedPitCache);
@@ -248,7 +287,7 @@ const CloudData = ({route, navigation}) => {
         setPitData(downloadedPitData);
         setTeamOrder(Object.keys(downloadedData));
         setStatistics(calculateAverages(downloadedData));
- 
+        setTrends(calculateTrendAverages(calculateAverages(loadedCache)));
         setLoadingVisible(false);
     }
 
@@ -275,6 +314,7 @@ const CloudData = ({route, navigation}) => {
                                         settings: settings,
                                         teamData: Object.keys(cloudData).includes(props.teamNumber)? sortMatches(cloudData[props.teamNumber]):[],
                                         pitData: Object.keys(pitData).includes(props.teamNumber)? pitData[props.teamNumber]:[],
+                                        trends: trends,
                                     })
                             }
                         }
@@ -300,9 +340,15 @@ const CloudData = ({route, navigation}) => {
                         </Text>
                     </View>
                     <View>
-                        <Text style={topLabelStyle}>Misses</Text>
+                        <Text style={topLabelStyle}>Speaker</Text>
                         <Text style={bottomLabelStyle}>
-                            {statistics[props.teamNumber]?.misses}
+                            {statistics[props.teamNumber]?.speaker}
+                        </Text>
+                    </View>
+                    <View>
+                        <Text style={topLabelStyle}>Amp</Text>
+                        <Text style={bottomLabelStyle}>
+                            {statistics[props.teamNumber]?.amp}
                         </Text>
                     </View>
                 </View>
@@ -440,4 +486,4 @@ const CloudData = ({route, navigation}) => {
 }
 
 // Exports
-export default CloudData;
+export default CloudData ;
