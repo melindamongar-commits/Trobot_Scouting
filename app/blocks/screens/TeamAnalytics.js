@@ -245,7 +245,10 @@ const TeamAnalytics = ({route, navigation}) => {
                     </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}>Climb-<Text style={styles.dataText}>{stageValues[props.matchData[19]]}</Text></Text>
+                    </View>
+                    <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[18] == 1 ? "Did" : "Did not"}</Text> trap</Text>
+                        <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[25] == 1 ? "Did" : "Did not"}</Text> shuttle notes</Text>
                     </View>
                     <View style={styles.rowAlignContainer}>
                         <Text style={styles.dataLabel}><Text style={styles.dataText}>{props.matchData[20] == 1 ? "Did" : "Did not"}</Text> break</Text>
