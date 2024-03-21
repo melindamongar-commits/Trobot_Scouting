@@ -329,11 +329,11 @@ const downloadDataToXLSX = async () => {
                         stageValues[match[19]], //Stage/Climb
                         Number(match[20]), //Broke
                         Number(match[21]), //Note Stuck
-                        Number(match[22]), //DriverSkill                        
+                        Number(match[22]), //DriverSkill
                         match[25], //Shuttle Notes
                         match[23], //EventKey
-                        match[24] //comment
-                    ])
+                        match[24], //comment
+                    ]))
                 ]);
 
                 XLSX.utils.book_append_sheet(workbook, Sheet, dataType);
